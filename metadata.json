@@ -1,0 +1,8 @@
+{
+  "name": "TechToolReviews",
+  "description": "The definitive technical guide for software, tech stacks, and AI tools in 2025-2026.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
