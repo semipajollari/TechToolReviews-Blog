@@ -23,9 +23,10 @@ async function getMongoConnection() {
   }
 
   try {
-    const mongoURI = process.env.MONGODB_URI;
+    // Check for both MONGODB_URI and MONGO_URI for compatibility
+    const mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI;
     if (!mongoURI) {
-      throw new Error('MONGODB_URI environment variable not configured');
+      throw new Error('MONGODB_URI or MONGO_URI environment variable not configured');
     }
 
     console.log('[Subscribers] Establishing new MongoDB connection...');
