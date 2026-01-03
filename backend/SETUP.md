@@ -62,6 +62,11 @@ git branch -M main
 
 ### 6. Add remote repository
 ```bash
+git remote add origin https://github.com/yourusername/your-backend-repo.git
+```
+
+For this project, the default repository is:
+```bash
 git remote add origin https://github.com/semipajollari/techtoolreviews-backend.git
 ```
 
