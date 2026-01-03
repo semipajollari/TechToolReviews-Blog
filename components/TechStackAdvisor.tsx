@@ -6,14 +6,20 @@ const TechStackAdvisor: React.FC = () => {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Recommendation | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
     setLoading(true);
     setResult(null);
+    setError(null);
     const recommendation = await getTechStackRecommendation(query);
-    setResult(recommendation);
+    if (!recommendation) {
+      setError('Failed to generate stack. Please check that your API key is configured correctly.');
+    } else {
+      setResult(recommendation);
+    }
     setLoading(false);
   };
 
@@ -56,6 +62,15 @@ const TechStackAdvisor: React.FC = () => {
           </button>
         </form>
       </div>
+
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 mb-8 text-red-700 dark:text-red-400">
+          <p className="font-semibold flex items-center">
+            <i className="fas fa-exclamation-circle mr-3"></i>
+            {error}
+          </p>
+        </div>
+      )}
 
       {result && (
         <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 grid lg:grid-cols-2 gap-10">

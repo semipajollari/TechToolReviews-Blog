@@ -1,13 +1,50 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ARTICLES, CATEGORIES, BRAND_NAME } from '../constants';
 import ArticleCard from '../components/ArticleCard';
 import TechStackAdvisor from '../components/TechStackAdvisor';
+import { useLanguage } from '../i18n';
 
 const Home: React.FC = () => {
   const latestArticles = ARTICLES.slice(0, 6);
   const featuredArticle = ARTICLES[0];
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        navigate('/insider-list', { 
+          state: { email, message: 'Subscription successful! Welcome to the Insider List.' } 
+        });
+        setEmail('');
+      } else {
+        setError(data.message || 'Subscription failed');
+      }
+    } catch (err) {
+      setError(t.subscribe.connectionError);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-white dark:bg-gray-950 transition-colors">
@@ -31,11 +68,11 @@ const Home: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row items-center space-y-5 sm:space-y-0 sm:space-x-8">
               <Link to="/category/software" className="w-full sm:w-auto bg-white text-gray-950 px-12 py-6 rounded-2xl text-xl font-black hover:bg-gray-100 transition-all shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95">
-                Explore Reviews
+                {t.home.viewAll}
                 <i className="fas fa-chevron-right ml-4 text-sm"></i>
               </Link>
               <Link to="/about" className="w-full sm:w-auto bg-transparent border-2 border-white/20 backdrop-blur-md text-white px-12 py-6 rounded-2xl text-xl font-black hover:bg-white/10 transition-all flex items-center justify-center">
-                Our Methodology
+                {t.common.learnMore}
               </Link>
             </div>
           </div>
@@ -57,12 +94,12 @@ const Home: React.FC = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 space-y-6 md:space-y-0">
           <div className="max-w-2xl">
-            <h2 className="text-4xl sm:text-6xl font-black text-gray-900 dark:text-gray-50 mb-4 tracking-tightest uppercase">Featured Insight</h2>
+            <h2 className="text-4xl sm:text-6xl font-black text-gray-900 dark:text-gray-50 mb-4 tracking-tightest uppercase">{t.home.featuredArticles}</h2>
             <div className="h-2 w-32 bg-indigo-600 mb-6 rounded-full"></div>
-            <p className="text-gray-500 dark:text-gray-400 font-bold text-xl leading-relaxed">The most critical technical review for the current quarter.</p>
+            <p className="text-gray-500 dark:text-gray-400 font-bold text-xl leading-relaxed">{t.home.latestReviews}</p>
           </div>
           <Link to="/category/guides" className="inline-flex items-center px-8 py-4 bg-gray-50 dark:bg-brand-dark border border-gray-100 dark:border-gray-800 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all">
-            All Guides <i className="fas fa-arrow-right ml-3"></i>
+            {t.home.viewAll} <i className="fas fa-arrow-right ml-3"></i>
           </Link>
         </div>
         <ArticleCard article={featuredArticle} featured />
@@ -86,14 +123,28 @@ const Home: React.FC = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
         <div className="bg-gray-950 dark:bg-indigo-950/20 rounded-[3rem] p-12 sm:p-24 text-white relative overflow-hidden shadow-2xl premium-border">
           <div className="md:w-2/3 relative z-10">
-            <h2 className="text-5xl sm:text-7xl font-black mb-10 leading-[1.05] tracking-tightest">Get the 2026 Tech Edge.</h2>
+            <h2 className="text-5xl sm:text-7xl font-black mb-10 leading-[1.05] tracking-tightest">{t.home.joinNewsletter}</h2>
             <p className="text-xl sm:text-2xl text-indigo-100/70 mb-12 max-w-xl font-medium leading-relaxed">
-              Join 125,000+ developers and founders who receive our technical tool audits weekly.
+              {t.home.newsletterDesc}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-               <input type="email" placeholder="work@company.com" className="bg-white/10 border border-white/20 px-8 py-5 rounded-2xl text-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/50 w-full sm:max-w-md font-bold" />
-               <button className="bg-white text-gray-950 px-10 py-5 rounded-2xl font-black text-lg hover:scale-105 transition-all">Join Insider List</button>
+               <input 
+                 type="email" 
+                 placeholder={t.home.emailPlaceholder}
+                 value={email}
+                 onChange={(e) => setEmail(e.target.value)}
+                 disabled={loading}
+                 className="bg-white/10 border border-white/20 px-8 py-5 rounded-2xl text-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/50 w-full sm:max-w-md font-bold disabled:opacity-50" 
+               />
+               <button 
+                 onClick={handleSubscribe}
+                 disabled={loading || !email}
+                 className="bg-white text-gray-950 px-10 py-5 rounded-2xl font-black text-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+               >
+                 {loading ? t.subscribe.subscribing : t.home.subscribeBtn}
+               </button>
             </div>
+            {error && <p className="text-red-400 mt-4 text-sm">{error}</p>}
           </div>
           <div className="absolute right-[-10%] bottom-[-10%] opacity-5 rotate-12 pointer-events-none">
              <i className="fas fa-bolt text-[40rem]"></i>

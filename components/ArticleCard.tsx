@@ -48,11 +48,11 @@ const ArticleCard: React.FC<Props> = ({ article, featured }) => {
           <span>{article.author}</span>
         </div>
         
-        <h3 className={`font-black text-gray-900 dark:text-gray-50 tracking-tightest transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400 ${featured ? 'text-4xl sm:text-6xl lg:text-7xl leading-[0.9]' : 'text-2xl sm:text-3xl leading-[1.1]'}`}>
+        <h3 className={`font-bold text-gray-900 dark:text-gray-50 tracking-tight transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400 ${featured ? 'text-3xl sm:text-4xl lg:text-5xl leading-tight' : 'text-xl sm:text-2xl leading-snug'}`}>
           {article.title}
         </h3>
         
-        <p className={`mt-8 text-gray-500 dark:text-gray-400 leading-relaxed font-bold line-clamp-3 ${featured ? 'text-xl' : 'text-base'}`}>
+        <p className={`mt-6 text-gray-600 dark:text-gray-400 leading-relaxed font-normal line-clamp-3 ${featured ? 'text-lg' : 'text-base'}`}>
           {article.excerpt}
         </p>
         

@@ -52,4 +52,5 @@ subscriberSchema.index({ email: 1 });
 subscriberSchema.index({ verificationToken: 1 });
 subscriberSchema.index({ unsubscribeToken: 1 });
 
-export default mongoose.model('Subscriber', subscriberSchema);
+// Handle model re-registration in serverless environment
+export default mongoose.models.Subscriber || mongoose.model('Subscriber', subscriberSchema);

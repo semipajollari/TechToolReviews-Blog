@@ -1,13 +1,53 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NAV_ITEMS, BRAND_NAME } from '../constants';
+import { useLanguage } from '../i18n';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setShowModal(false);
+        setEmail('');
+        navigate('/insider-list', { 
+          state: { email, message: 'Subscription successful!' } 
+        });
+      } else {
+        setError(data.message || 'Subscription failed');
+      }
+    } catch (err) {
+      setError(t.subscribe.connectionError);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -20,6 +60,32 @@ const Navbar: React.FC = () => {
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.top = `-${window.scrollY}px`;
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+    };
+  }, [showModal]);
 
   const toggleDarkMode = () => {
     if (darkMode) {
@@ -62,6 +128,8 @@ const Navbar: React.FC = () => {
               </Link>
             ))}
             
+            <LanguageSwitcher />
+            
             <button 
               onClick={toggleDarkMode}
               className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
@@ -70,8 +138,11 @@ const Navbar: React.FC = () => {
               <i className={`fas ${darkMode ? 'fa-sun' : 'fa-moon'}`}></i>
             </button>
 
-            <button className="bg-gray-900 dark:bg-white dark:text-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:scale-105 transition-all shadow-sm">
-              Subscribe
+            <button 
+              onClick={() => setShowModal(true)}
+              className="bg-gray-900 dark:bg-white dark:text-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:scale-105 transition-all shadow-sm"
+            >
+              {t.nav.subscribe}
             </button>
           </div>
 
@@ -107,13 +178,67 @@ const Navbar: React.FC = () => {
               <span>{item.label}</span>
             </Link>
           ))}
-          <div className="pt-4">
-            <button className="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black text-lg shadow-lg shadow-indigo-200 dark:shadow-none">
-              Get Tech Stack Guide
+          <div className="pt-4 space-y-3">
+            <LanguageSwitcher />
+            <button 
+              onClick={() => setShowModal(true)}
+              className="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black text-lg shadow-lg shadow-indigo-200 dark:shadow-none"
+            >
+              {t.nav.subscribeNow}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Subscribe Modal */}
+      {showModal && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
+          onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
+        >
+          <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 max-w-md w-full shadow-2xl relative animate-fade-in">
+            {/* Close Button - Top Right */}
+            <button 
+              onClick={() => setShowModal(false)} 
+              className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-all"
+              aria-label="Close modal"
+            >
+              <i className="fas fa-times text-lg"></i>
+            </button>
+            
+            <div className="mb-6 pr-8">
+              <h2 className="text-2xl font-black text-gray-900 dark:text-white">{t.subscribe.joinInsiderList}</h2>
+            </div>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{t.subscribe.weeklyInsights}</p>
+            <form onSubmit={handleSubscribe}>
+              <input 
+                type="email" 
+                placeholder={t.home.emailPlaceholder}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-xl mb-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+              <button 
+                type="submit"
+                disabled={loading || !email}
+                className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all disabled:opacity-50"
+              >
+                {loading ? t.subscribe.subscribing : t.nav.subscribe}
+              </button>
+            </form>
+            
+            {/* Close Button - Bottom */}
+            <button 
+              onClick={() => setShowModal(false)}
+              className="w-full mt-4 py-3 text-gray-500 dark:text-gray-400 font-medium hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+            >
+              {t.subscribe.close}
+            </button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
