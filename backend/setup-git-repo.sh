@@ -2,10 +2,21 @@
 
 # Setup script to initialize backend as a separate git repository
 # This script should be run from within the backend directory
+#
+# Usage:
+#   ./setup-git-repo.sh [repository-url]
+#
+# Example:
+#   ./setup-git-repo.sh https://github.com/semipajollari/techtoolreviews-backend.git
 
 set -e
 
+# Default repository URL
+DEFAULT_REPO_URL="https://github.com/semipajollari/techtoolreviews-backend.git"
+REPO_URL="${1:-$DEFAULT_REPO_URL}"
+
 echo "🚀 Setting up TechToolReviews Backend as a separate git repository..."
+echo "   Repository URL: $REPO_URL"
 
 # Check if we're in the backend directory
 if [ ! -f "server.js" ] || [ ! -f "package.json" ]; then
@@ -41,10 +52,12 @@ git config init.defaultBranch main 2>/dev/null || true
 
 # Check if git user is configured
 if [ -z "$(git config user.name)" ] || [ -z "$(git config user.email)" ]; then
-    echo "⚠️  Git user not configured. Setting up local git config..."
+    echo "⚠️  Git user not configured. Setting up temporary local git config..."
     git config user.name "TechToolReviews"
     git config user.email "admin@techtoolreviews.com"
-    echo "   (You can change this later with: git config user.name 'Your Name')"
+    echo "   ⚠️  IMPORTANT: Change this to your actual credentials:"
+    echo "      git config user.name 'Your Name'"
+    echo "      git config user.email 'your.email@example.com'"
 fi
 
 # Check if .gitignore exists
@@ -68,7 +81,7 @@ git commit -m "Initial commit: Backend API server"
 
 # Add remote origin
 echo "🔗 Adding remote repository..."
-git remote add origin https://github.com/semipajollari/techtoolreviews-backend.git
+git remote add origin "$REPO_URL"
 
 # Check if main branch exists, if not rename master to main
 current_branch=$(git branch --show-current)
@@ -82,7 +95,7 @@ echo "✅ Git repository setup complete!"
 echo ""
 echo "📌 Next steps:"
 echo "   1. Make sure the remote repository exists at:"
-echo "      https://github.com/semipajollari/techtoolreviews-backend.git"
+echo "      $REPO_URL"
 echo ""
 echo "   2. Push your code to the remote repository:"
 echo "      git push -u origin main"

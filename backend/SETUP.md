@@ -11,6 +11,13 @@ cd backend
 ./setup-git-repo.sh
 ```
 
+Or specify a custom repository URL:
+
+```bash
+cd backend
+./setup-git-repo.sh https://github.com/yourusername/your-backend-repo.git
+```
+
 The script will:
 - Initialize a new git repository
 - Configure git user settings if needed
