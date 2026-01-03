@@ -22,8 +22,9 @@ app.get('/health', (req, res) => {
 });
 
 connectDB().then(() => {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`✓ Server running on http://localhost:${PORT}`);
+    console.log(`✓ Network: http://192.168.1.49:${PORT}`);
     console.log(`✓ Subscribe endpoint: POST http://localhost:${PORT}/api/subscribe`);
   });
 });

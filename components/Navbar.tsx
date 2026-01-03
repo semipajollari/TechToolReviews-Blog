@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NAV_ITEMS, BRAND_NAME } from '../constants';
 import { useLanguage } from '../i18n';
 import LanguageSwitcher from './LanguageSwitcher';
+import { API_ENDPOINTS } from '../config/api';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +26,7 @@ const Navbar: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/subscribe', {
+      const response = await fetch(API_ENDPOINTS.subscribe, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() }),

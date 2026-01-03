@@ -5,6 +5,7 @@ import { ARTICLES, CATEGORIES, BRAND_NAME } from '../constants';
 import ArticleCard from '../components/ArticleCard';
 import TechStackAdvisor from '../components/TechStackAdvisor';
 import { useLanguage } from '../i18n';
+import { API_ENDPOINTS } from '../config/api';
 
 const Home: React.FC = () => {
   const latestArticles = ARTICLES.slice(0, 6);
@@ -23,7 +24,7 @@ const Home: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/subscribe', {
+      const response = await fetch(API_ENDPOINTS.subscribe, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() }),
