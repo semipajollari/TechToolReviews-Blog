@@ -36,6 +36,17 @@ fi
 echo "📦 Initializing git repository..."
 git init
 
+# Set default branch to main
+git config init.defaultBranch main 2>/dev/null || true
+
+# Check if git user is configured
+if [ -z "$(git config user.name)" ] || [ -z "$(git config user.email)" ]; then
+    echo "⚠️  Git user not configured. Setting up local git config..."
+    git config user.name "TechToolReviews"
+    git config user.email "admin@techtoolreviews.com"
+    echo "   (You can change this later with: git config user.name 'Your Name')"
+fi
+
 # Check if .gitignore exists
 if [ ! -f ".gitignore" ]; then
     echo "⚠️  Warning: .gitignore not found. Creating a basic one..."
