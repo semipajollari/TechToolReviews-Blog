@@ -60,57 +60,33 @@ function getSubscriberModel() {
   try {
     // Check if model is already registered
     if (mongoose.models && mongoose.models.Subscriber) {
-      console.log('[Subscribers] Using registered Subscriber model');
       return mongoose.models.Subscriber;
     }
-
-    console.log('[Subscribers] Creating Subscriber model...');
     
-    // Define the schema
-    const subscriberSchema = new mongoose.Schema(
-      {
-        email: {
-          type: String,
-          required: true,
-          unique: true,
-          trim: true,
-          lowercase: true,
-          match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Invalid email format'],
-        },
-        isVerified: {
-          type: Boolean,
-          default: false,
-        },
-        verificationToken: {
-          type: String,
-          sparse: true,
-        },
-        unsubscribeToken: {
-          type: String,
-          sparse: true,
-        },
-        subscribedAt: {
-          type: Date,
-          default: Date.now,
-        },
-        lastEmailSent: {
-          type: Date,
-        },
-        preferences: {
-          categories: [{ type: String, trim: true }],
-          frequency: {
-            type: String,
-            enum: ['daily', 'weekly', 'monthly'],
-            default: 'weekly',
-          },
-        },
-        isActive: {
-          type: Boolean,
-          default: true,
-        },
+    // Define the schema (matches subscribe.js)
+    const subscriberSchema = new mongoose.Schema({
+      email: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true,
       },
-      { timestamps: true }
-    );
+      status: {
+        type: String,
+        enum: ['pending', 'active', 'unsubscribed'],
+        default: 'pending',
+      },
+      verificationToken: String,
+      tokenExpiresAt: Date,
+      unsubscribeToken: String,
+      verifiedAt: Date,
+      lastEmailSent: Date,
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+    });
 
     // Indexes
     subscriberSchema.index({ email: 1 });
@@ -118,12 +94,10 @@ function getSubscriberModel() {
 
     // Register model
     const model = mongoose.model('Subscriber', subscriberSchema);
-    console.log('[Subscribers] ✅ Subscriber model created');
     return model;
   } catch (error) {
     // If model already exists, return it
     if (error.message && error.message.includes('Cannot overwrite')) {
-      console.log('[Subscribers] Model already exists, retrieving...');
       return mongoose.models.Subscriber;
     }
     console.error('[Subscribers] ❌ Model error:', error.message);

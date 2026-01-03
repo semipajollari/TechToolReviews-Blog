@@ -3,8 +3,7 @@ import mongoose from 'mongoose';
 
 // Validation function
 const validateEmail = (email) => {
-  const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
-  return emailRegex.test(email);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
 // Cache connection for serverless
@@ -15,128 +14,180 @@ let cachedConnection = null;
  */
 async function getMongoConnection() {
   if (cachedConnection && cachedConnection.connection.readyState === 1) {
-    console.log('[Subscribe] Using cached MongoDB connection');
     return cachedConnection;
   }
 
+  const mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI;
+  if (!mongoURI) {
+    console.error('[Subscribe] ❌ No MongoDB URI configured');
+    throw new Error('Database configuration missing');
+  }
+
+  const sanitizedUri = mongoURI.replace(/:([^@]+)@/, ':***@');
+  console.log('[Subscribe] Connecting to:', sanitizedUri);
+
+  const conn = await mongoose.connect(mongoURI, {
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 10,
+    retryWrites: true,
+    w: 'majority',
+  });
+
+  cachedConnection = conn;
+  console.log('[Subscribe] ✅ MongoDB connected');
+  return conn;
+}
+
+/**
+ * Get Subscriber model with double opt-in schema
+ */
+function getSubscriberModel() {
+  if (mongoose.models?.Subscriber) {
+    return mongoose.models.Subscriber;
+  }
+
+  const subscriberSchema = new mongoose.Schema({
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'active', 'unsubscribed'],
+      default: 'pending',
+    },
+    verificationToken: String,
+    tokenExpiresAt: Date,
+    unsubscribeToken: String,
+    verifiedAt: Date,
+    lastEmailSent: Date,
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+  });
+
+  return mongoose.model('Subscriber', subscriberSchema);
+}
+
+/**
+ * Send email via Gmail SMTP (using fetch to Nodemailer-compatible endpoint)
+ * For Vercel serverless, we use nodemailer directly
+ */
+async function sendEmail(to, subject, html) {
+  const smtpUser = process.env.SMTP_USER || process.env.FROM_EMAIL;
+  const smtpPass = process.env.SMTP_PASS;
+  
+  if (!smtpUser || !smtpPass) {
+    console.log('[Email] SMTP credentials not configured, skipping email');
+    return false;
+  }
+
   try {
-    const mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI;
-    if (!mongoURI) {
-      console.error('[Subscribe] ❌ No MongoDB URI configured');
-      throw new Error('Database configuration missing');
-    }
-
-    // Log sanitized URI for debugging (hide password)
-    const sanitizedUri = mongoURI.replace(/:([^@]+)@/, ':***@');
-    console.log('[Subscribe] Connecting to:', sanitizedUri);
-
-    const conn = await mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      maxPoolSize: 10,
-      minPoolSize: 2,
-      retryWrites: true,
-      w: 'majority',
+    // Dynamic import for nodemailer (works in Vercel serverless)
+    const nodemailer = await import('nodemailer');
+    
+    const transporter = nodemailer.default.createTransport({
+      service: 'gmail',
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
     });
 
-    cachedConnection = conn;
-    console.log('[Subscribe] ✅ MongoDB connected');
-    return conn;
+    await transporter.sendMail({
+      from: `"TechToolReviews" <${smtpUser}>`,
+      to,
+      subject,
+      html,
+    });
+
+    console.log('[Email] ✅ Sent to:', to);
+    return true;
   } catch (error) {
-    console.error('[Subscribe] ❌ Connection failed:', error.message);
-    cachedConnection = null;
-    throw error;
+    console.error('[Email] ❌ Error:', error.message);
+    return false;
   }
 }
 
 /**
- * Get Subscriber model
+ * Generate verification email HTML
  */
-function getSubscriberModel() {
-  if (mongoose.models && mongoose.models.Subscriber) {
-    return mongoose.models.Subscriber;
-  }
-
-  const subscriberSchema = new mongoose.Schema(
-    {
-      email: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true,
-        lowercase: true,
-      },
-      isVerified: {
-        type: Boolean,
-        default: false,
-      },
-      verificationToken: {
-        type: String,
-        sparse: true,
-      },
-      unsubscribeToken: {
-        type: String,
-        sparse: true,
-      },
-      subscribedAt: {
-        type: Date,
-        default: Date.now,
-      },
-      preferences: {
-        categories: [{ type: String, trim: true }],
-        frequency: {
-          type: String,
-          enum: ['daily', 'weekly', 'monthly'],
-          default: 'weekly',
-        },
-      },
-      isActive: {
-        type: Boolean,
-        default: true,
-      },
-    },
-    { timestamps: true }
-  );
-
-  return mongoose.model('Subscriber', subscriberSchema);
+function getVerificationEmailHtml(verifyUrl) {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="display: inline-block; background: #6366f1; padding: 12px 16px; border-radius: 12px;">
+          <span style="color: white; font-size: 24px;">⚡</span>
+        </div>
+        <h1 style="color: #18181b; margin: 20px 0 0; font-size: 24px;">TechToolReviews</h1>
+      </div>
+      
+      <h2 style="color: #18181b; margin: 0 0 16px; font-size: 20px;">Verify your email</h2>
+      <p style="color: #52525b; line-height: 1.6; margin: 0 0 24px;">
+        Thanks for subscribing! Click the button below to confirm your email and start receiving our weekly tech reviews and guides.
+      </p>
+      
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${verifyUrl}" style="display: inline-block; background: #6366f1; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+          Verify Email
+        </a>
+      </div>
+      
+      <p style="color: #71717a; font-size: 14px; line-height: 1.6;">
+        This link expires in 24 hours. If you didn't subscribe, you can safely ignore this email.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid #e4e4e7; margin: 32px 0;">
+      
+      <p style="color: #a1a1aa; font-size: 12px; text-align: center; margin: 0;">
+        © 2026 TechToolReviews. All rights reserved.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
 }
 
 /**
  * Main handler for /api/subscribe
  */
 export default async function handler(req, res) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
 
-  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Only allow POST
   if (req.method !== 'POST') {
-    return res.status(405).json({
-      success: false,
-      message: 'Method not allowed',
-    });
+    return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 
   try {
     console.log('[Subscribe] POST request received');
-
-    // Connect to database
+    
     await getMongoConnection();
     const Subscriber = getSubscriberModel();
 
-    // Get email from body
-    const { email, preferences } = req.body || {};
+    const { email } = req.body || {};
     console.log('[Subscribe] Email:', email ? email.substring(0, 5) + '***' : 'MISSING');
 
-    // Validate email
-    if (!email || typeof email !== 'string' || !validateEmail(email.trim())) {
+    if (!email || !validateEmail(email.trim())) {
       return res.status(400).json({
         success: false,
         message: 'Please provide a valid email address',
@@ -144,57 +195,73 @@ export default async function handler(req, res) {
     }
 
     const emailLower = email.toLowerCase().trim();
-
-    // Check for existing subscriber
     const existing = await Subscriber.findOne({ email: emailLower });
 
     if (existing) {
-      if (existing.isVerified) {
+      if (existing.status === 'active') {
         return res.status(400).json({
           success: false,
           message: 'This email is already subscribed',
         });
-      } else {
-        // Resend verification
-        existing.verificationToken = crypto.randomBytes(32).toString('hex');
-        await existing.save();
-        return res.status(200).json({
-          success: true,
-          message: 'Verification email resent. Please check your inbox.',
-          email: existing.email,
-        });
       }
+
+      // Resend verification for pending/unsubscribed
+      existing.verificationToken = crypto.randomBytes(32).toString('hex');
+      existing.tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      existing.status = 'pending';
+      await existing.save();
+
+      // Send verification email (non-blocking)
+      const baseUrl = process.env.FRONTEND_URL || 'https://tech-tool-reviews-blog.vercel.app';
+      const verifyUrl = `${baseUrl}/api/verify?token=${existing.verificationToken}`;
+      sendEmail(emailLower, 'Verify your TechToolReviews subscription', getVerificationEmailHtml(verifyUrl));
+
+      return res.status(200).json({
+        success: true,
+        message: 'Verification email sent. Please check your inbox.',
+        email: emailLower,
+      });
     }
 
     // Create new subscriber
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const unsubscribeToken = crypto.randomBytes(32).toString('hex');
+
     const newSubscriber = new Subscriber({
       email: emailLower,
-      verificationToken: crypto.randomBytes(32).toString('hex'),
-      preferences: preferences || { frequency: 'weekly', categories: [] },
-      isVerified: false,
-      isActive: true,
+      status: 'pending',
+      verificationToken,
+      tokenExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      unsubscribeToken,
     });
 
     await newSubscriber.save();
     console.log('[Subscribe] ✅ Subscriber created:', emailLower);
 
+    // Send verification email (non-blocking)
+    const baseUrl = process.env.FRONTEND_URL || 'https://tech-tool-reviews-blog.vercel.app';
+    const verifyUrl = `${baseUrl}/api/verify?token=${verificationToken}`;
+    sendEmail(emailLower, 'Verify your TechToolReviews subscription', getVerificationEmailHtml(verifyUrl));
+
     return res.status(201).json({
       success: true,
-      message: 'Subscription successful! Check your email to verify.',
-      email: newSubscriber.email,
-      data: {
-        email: newSubscriber.email,
-        subscribedAt: newSubscriber.subscribedAt,
-        isVerified: false,
-      },
+      message: 'Thanks! Please check your email to verify your subscription.',
+      email: emailLower,
     });
+
   } catch (error) {
     console.error('[Subscribe] ❌ Error:', error.message);
-    console.error('[Subscribe] Stack:', error.stack);
+    
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'This email is already registered',
+      });
+    }
 
     return res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: 'Something went wrong. Please try again.',
     });
   }
 }
