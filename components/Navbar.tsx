@@ -25,11 +25,18 @@ const Navbar: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/subscribe', {
+      const apiUrl = import.meta.env.VITE_API_URL || '/api';
+      const response = await fetch(`${apiUrl}/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Network error' }));
+        setError(errorData.message || `Error: ${response.status}`);
+        return;
+      }
 
       const data = await response.json();
 

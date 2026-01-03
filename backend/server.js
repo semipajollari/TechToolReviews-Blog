@@ -8,10 +8,11 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || '0.0.0.0';
 
 app.use(express.json());
 app.use(cors({
-  origin: true,
+  origin: process.env.CORS_ORIGIN || true,
   credentials: true,
 }));
 
@@ -22,8 +23,8 @@ app.get('/health', (req, res) => {
 });
 
 connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`✓ Server running on http://localhost:${PORT}`);
-    console.log(`✓ Subscribe endpoint: POST http://localhost:${PORT}/api/subscribe`);
+  app.listen(PORT, HOST, () => {
+    console.log(`✓ Server running on http://${HOST}:${PORT}`);
+    console.log(`✓ Subscribe endpoint: POST http://${HOST}:${PORT}/api/subscribe`);
   });
 });
