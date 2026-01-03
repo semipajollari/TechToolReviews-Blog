@@ -26,10 +26,14 @@ async function getMongoConnection() {
     // Check for both MONGODB_URI and MONGO_URI for compatibility
     const mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI;
     if (!mongoURI) {
-      throw new Error('MONGODB_URI or MONGO_URI environment variable not configured');
+      console.error('[Subscribers] ❌ No MongoDB URI configured');
+      throw new Error('Database configuration missing');
     }
 
-    console.log('[Subscribers] Establishing new MongoDB connection...');
+    // Log sanitized URI for debugging (hide password)
+    const sanitizedUri = mongoURI.replace(/:([^@]+)@/, ':***@');
+    console.log('[Subscribers] Connecting to:', sanitizedUri);
+
     const conn = await mongoose.connect(mongoURI, {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
