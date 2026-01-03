@@ -1,0 +1,44 @@
+import { MongoClient, ServerApiVersion } from 'mongodb';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from the project root
+dotenv.config({ path: path.join(__dirname, '..', '.env.local') });
+
+const uri = process.env.MONGODB_URI;
+
+console.log('🔍 Attempting to connect to MongoDB...');
+console.log('📍 Connection URI:', uri ? uri.replace(/\/\/.*@/, '//***:***@') : 'NOT SET');
+
+if (!uri) {
+  console.error('❌ MONGODB_URI environment variable is not set!');
+  process.exit(1);
+}
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+async function run() {
+  try {
+    // Connect the client to the server (optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("✅ Pinged your deployment. You successfully connected to MongoDB Atlas!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+
+run().catch(console.dir);

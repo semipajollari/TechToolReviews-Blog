@@ -93,7 +93,7 @@ const ArticlePage: React.FC = () => {
                    <span className="inline-block bg-indigo-600 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-8">Expert Recommendation</span>
                    <div className="relative z-10" dangerouslySetInnerHTML={{ 
                      __html: para.replace(/\[(.*?)\]\((.*?)\)/g, 
-                       '<h4 class="text-3xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">$1</h4><a href="$2" class="inline-flex items-center bg-gray-950 dark:bg-indigo-600 text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl">Secure the 2026 Launch Price <i class="fas fa-external-link-alt ml-4 text-xs"></i></a>') 
+                       '<h4 class="text-3xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">$1</h4><a href="$2" target="_blank" rel="noopener noreferrer" class="inline-flex items-center bg-gray-950 dark:bg-indigo-600 text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl">Secure the 2026 Launch Price <i class="fas fa-external-link-alt ml-4 text-xs"></i></a>') 
                    }}></div>
                 </div>
                );
