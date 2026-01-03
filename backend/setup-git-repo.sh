@@ -45,10 +45,7 @@ fi
 
 # Initialize git repository
 echo "📦 Initializing git repository..."
-git init
-
-# Set default branch to main
-git config init.defaultBranch main 2>/dev/null || true
+git init -b main 2>/dev/null || git init
 
 # Check if git user is configured
 if [ -z "$(git config user.name)" ] || [ -z "$(git config user.email)" ]; then
@@ -62,13 +59,10 @@ fi
 
 # Check if .gitignore exists
 if [ ! -f ".gitignore" ]; then
-    echo "⚠️  Warning: .gitignore not found. Creating a basic one..."
-    cat > .gitignore << 'EOF'
-node_modules/
-.env
-.env.local
-*.log
-EOF
+    echo "❌ Error: .gitignore file not found!"
+    echo "   This repository should include a .gitignore file."
+    echo "   Please ensure you have all the necessary files before running this script."
+    exit 1
 fi
 
 # Add all files
