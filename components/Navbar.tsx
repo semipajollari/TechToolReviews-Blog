@@ -1,10 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NAV_ITEMS, BRAND_NAME } from '../constants';
 import { useLanguage } from '../i18n';
 import LanguageSwitcher from './LanguageSwitcher';
-import { API_ENDPOINTS } from '../config/api';
+import { API_ENDPOINTS, fetchWithTimeout, safeParseJson } from '../config/api';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,39 +14,54 @@ const Navbar: React.FC = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const isSubmitting = useRef(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useLanguage();
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || isSubmitting.current) return;
     
+    // Basic client-side validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setError('Invalid email format');
+      return;
+    }
+    
+    isSubmitting.current = true;
     setLoading(true);
     setError('');
 
     try {
-      const response = await fetch(API_ENDPOINTS.subscribe, {
+      const response = await fetchWithTimeout(API_ENDPOINTS.subscribe, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
-      });
+        body: JSON.stringify({ email: trimmedEmail }),
+      }, 15000);
 
-      const data = await response.json();
+      const data = await safeParseJson(response);
 
       if (data.success) {
         setShowModal(false);
         setEmail('');
         navigate('/insider-list', { 
-          state: { email, message: 'Subscription successful!' } 
+          state: { email: trimmedEmail, message: 'Subscription successful!' } 
         });
       } else {
-        setError(data.message || 'Subscription failed');
+        setError(data.message || 'Subscription failed. Please try again.');
       }
     } catch (err) {
-      setError(t.subscribe.connectionError);
+      if (err instanceof Error && err.name === 'AbortError') {
+        setError('Request timed out. Please try again.');
+      } else {
+        setError(t.subscribe.connectionError || 'Connection error. Please try again.');
+      }
     } finally {
       setLoading(false);
+      isSubmitting.current = false;
     }
   };
 

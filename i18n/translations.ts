@@ -59,6 +59,7 @@ export interface Translations {
     subscribeSuccess: string;
     close: string;
     connectionError: string;
+    invalidEmail: string;
   };
   // Footer
   footer: {
@@ -151,6 +152,7 @@ export const translations: Record<Language, Translations> = {
       subscribeSuccess: 'Subscription successful!',
       close: 'Close',
       connectionError: 'Connection error. Please try again.',
+      invalidEmail: 'Please enter a valid email address.',
     },
     footer: {
       description: 'The global authority on technical toolsets and software comparisons for the 2026 digital landscape.',
@@ -238,6 +240,7 @@ export const translations: Record<Language, Translations> = {
       subscribeSuccess: 'Erfolgreich abonniert!',
       close: 'Schließen',
       connectionError: 'Verbindungsfehler. Bitte versuchen Sie es erneut.',
+      invalidEmail: 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
     },
     footer: {
       description: 'Die globale Autorität für technische Toolsets und Software-Vergleiche für die digitale Landschaft 2026.',
@@ -325,6 +328,7 @@ export const translations: Record<Language, Translations> = {
       subscribeSuccess: '¡Suscripción exitosa!',
       close: 'Cerrar',
       connectionError: 'Error de conexión. Por favor, inténtalo de nuevo.',
+      invalidEmail: 'Por favor, introduce una dirección de correo válida.',
     },
     footer: {
       description: 'La autoridad global en conjuntos de herramientas técnicas y comparaciones de software para el panorama digital de 2026.',
@@ -412,6 +416,7 @@ export const translations: Record<Language, Translations> = {
       subscribeSuccess: 'Abonnement réussi !',
       close: 'Fermer',
       connectionError: 'Erreur de connexion. Veuillez réessayer.',
+      invalidEmail: 'Veuillez entrer une adresse e-mail valide.',
     },
     footer: {
       description: 'L\'autorité mondiale sur les outils techniques et les comparaisons de logiciels pour le paysage numérique de 2026.',

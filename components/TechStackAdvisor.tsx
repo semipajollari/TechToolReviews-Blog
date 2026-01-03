@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { getTechStackRecommendation, Recommendation } from '../services/geminiService';
 
 const TechStackAdvisor: React.FC = () => {
@@ -7,20 +7,37 @@ const TechStackAdvisor: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Recommendation | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const isSubmitting = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery || isSubmitting.current) return;
+    
+    if (trimmedQuery.length < 10) {
+      setError('Please provide a more detailed description (at least 10 characters).');
+      return;
+    }
+    
+    isSubmitting.current = true;
     setLoading(true);
     setResult(null);
     setError(null);
-    const recommendation = await getTechStackRecommendation(query);
-    if (!recommendation) {
-      setError('Failed to generate stack. Please check that your API key is configured correctly.');
-    } else {
-      setResult(recommendation);
+    
+    try {
+      const recommendation = await getTechStackRecommendation(trimmedQuery);
+      if (!recommendation) {
+        setError('Failed to generate stack. The AI service may be temporarily unavailable.');
+      } else {
+        setResult(recommendation);
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+      console.error('TechStackAdvisor error:', err);
+    } finally {
+      setLoading(false);
+      isSubmitting.current = false;
     }
-    setLoading(false);
   };
 
   return (

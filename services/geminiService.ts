@@ -10,16 +10,32 @@ export interface Recommendation {
   reasoning: string;
 }
 
+const TIMEOUT_MS = 30000;
+
 export const getTechStackRecommendation = async (userInput: string): Promise<Recommendation | null> => {
-  /* Use process.env.API_KEY directly as per the @google/genai guidelines */
-  if (!process.env.API_KEY) return null;
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    console.warn('Gemini API key not configured');
+    return null;
+  }
+
+  // Sanitize input
+  const sanitizedInput = userInput.trim().slice(0, 500);
+  if (sanitizedInput.length < 10) {
+    return null;
+  }
 
   try {
-    /* Initialize GoogleGenAI directly with the environment variable */
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: `Suggest a modern tech stack for the following business idea: "${userInput}". Be specific for 2025-2026 tech trends.`,
+    const ai = new GoogleGenAI({ apiKey });
+    
+    // Create timeout promise
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), TIMEOUT_MS);
+    });
+
+    const requestPromise = ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: `Suggest a modern tech stack for the following business idea: "${sanitizedInput}". Be specific for 2025-2026 tech trends.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -37,14 +53,23 @@ export const getTechStackRecommendation = async (userInput: string): Promise<Rec
       }
     });
 
-    /* Accessing .text as a property directly */
+    const response = await Promise.race([requestPromise, timeoutPromise]);
     const text = response.text;
+    
     if (text) {
-      return JSON.parse(text);
+      const parsed = JSON.parse(text);
+      // Validate response structure
+      if (parsed.stackName && parsed.frontend && parsed.backend && parsed.database && parsed.hosting && parsed.reasoning) {
+        return parsed as Recommendation;
+      }
     }
     return null;
   } catch (error) {
-    console.error("Gemini Error:", error);
+    if (error instanceof Error) {
+      console.error("Gemini Error:", error.message);
+    } else {
+      console.error("Gemini Error:", error);
+    }
     return null;
   }
 };

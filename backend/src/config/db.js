@@ -18,3 +18,7 @@ export const disconnectDB = async () => {
     console.error('✗ MongoDB disconnection failed:', error.message);
   }
 };
+
+export const isDBConnected = () => {
+  return mongoose.connection.readyState === 1;
+};
