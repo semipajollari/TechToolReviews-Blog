@@ -1,15 +1,17 @@
 
 import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ARTICLES, CATEGORIES, BRAND_NAME } from '../constants';
+import { BRAND_NAME } from '../constants';
 import ArticleCard from '../components/ArticleCard';
 import TechStackAdvisor from '../components/TechStackAdvisor';
-import { useLanguage } from '../i18n';
+import { useLanguage, useLocalizedArticles, useLocalizedCategories } from '../i18n';
 import { API_ENDPOINTS, fetchWithTimeout, safeParseJson } from '../config/api';
 
 const Home: React.FC = () => {
-  const latestArticles = ARTICLES.slice(0, 6);
-  const featuredArticle = ARTICLES[0];
+  const articles = useLocalizedArticles();
+  const categories = useLocalizedCategories();
+  const latestArticles = articles.slice(0, 6);
+  const featuredArticle = articles[0];
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -97,7 +99,7 @@ const Home: React.FC = () => {
         {/* Quick Nav Ticker */}
         <div className="absolute bottom-12 left-0 w-full overflow-hidden hidden lg:block">
            <div className="flex space-x-8 px-10 animate-marquee whitespace-nowrap">
-              {CATEGORIES.map(cat => (
+              {categories.map(cat => (
                 <Link key={cat.id} to={`/category/${cat.slug}`} className="text-white/40 hover:text-white transition-colors text-sm font-black uppercase tracking-[0.3em]">
                    {cat.name} // 2026 Edition
                 </Link>

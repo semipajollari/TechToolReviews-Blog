@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CATEGORIES } from '../constants';
 import ArticleCard from '../components/ArticleCard';
-import { useLanguage } from '../i18n';
+import { useLanguage, useLocalizedCategories } from '../i18n';
 
 const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const category = CATEGORIES.find(c => c.slug === slug);
+  const categories = useLocalizedCategories();
+  const category = categories.find(c => c.slug === slug);
   const { t } = useLanguage();
 
   if (!category) {
@@ -85,7 +85,7 @@ const CategoryPage: React.FC = () => {
           </div>
           <h3 className="text-3xl sm:text-5xl font-black mb-16 uppercase tracking-tightest relative z-10">{t.category.alternativeSectors}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 relative z-10">
-            {CATEGORIES.filter(c => c.id !== category.id).map(other => (
+            {categories.filter(c => c.id !== category.id).map(other => (
               <Link 
                 key={other.id} 
                 to={`/category/${other.slug}`}

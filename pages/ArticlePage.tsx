@@ -1,12 +1,11 @@
 
 import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ARTICLES } from '../constants';
-import { useLanguage } from '../i18n';
+import { useLanguage, useLocalizedArticle } from '../i18n';
 
 const ArticlePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const article = ARTICLES.find(a => a.id === id);
+  const article = useLocalizedArticle(id || '');
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -30,7 +29,7 @@ const ArticlePage: React.FC = () => {
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav className="flex items-center space-x-2 text-[10px] font-black text-indigo-600 dark:text-indigo-400 mb-8 uppercase tracking-widest">
-          <Link to="/" className="hover:underline">Home</Link>
+          <Link to="/" className="hover:underline">{t.nav.home}</Link>
           <i className="fas fa-chevron-right text-[8px] text-gray-400"></i>
           <Link to={`/category/${article.category}`} className="hover:underline">{article.category.replace('-', ' ')}</Link>
         </nav>
