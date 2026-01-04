@@ -213,10 +213,11 @@ export default async function handler(req, res) {
       existing.status = 'pending';
       await existing.save();
 
-      // Send verification email (non-blocking)
+      // Send verification email
       const baseUrl = process.env.FRONTEND_URL || 'https://tech-tool-reviews-blog.vercel.app';
       const verifyUrl = `${baseUrl}/api/verify?token=${existing.verificationToken}`;
-      sendEmail(emailLower, 'Verify your TechToolReviews subscription', getVerificationEmailHtml(verifyUrl));
+      const emailSent = await sendEmail(emailLower, 'Verify your TechToolReviews subscription', getVerificationEmailHtml(verifyUrl));
+      console.log('[Subscribe] Email sent:', emailSent);
 
       return res.status(200).json({
         success: true,
@@ -240,10 +241,11 @@ export default async function handler(req, res) {
     await newSubscriber.save();
     console.log('[Subscribe] ✅ Subscriber created:', emailLower);
 
-    // Send verification email (non-blocking)
+    // Send verification email
     const baseUrl = process.env.FRONTEND_URL || 'https://tech-tool-reviews-blog.vercel.app';
     const verifyUrl = `${baseUrl}/api/verify?token=${verificationToken}`;
-    sendEmail(emailLower, 'Verify your TechToolReviews subscription', getVerificationEmailHtml(verifyUrl));
+    const emailSent = await sendEmail(emailLower, 'Verify your TechToolReviews subscription', getVerificationEmailHtml(verifyUrl));
+    console.log('[Subscribe] Email sent:', emailSent);
 
     return res.status(201).json({
       success: true,
