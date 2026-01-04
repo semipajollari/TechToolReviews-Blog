@@ -41,7 +41,7 @@ export const TRANSLATED_ARTICLES: TranslatedArticle[] = [
     category: 'software',
     date: 'May 10, 2025',
     author: 'Jane Doe',
-    image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?auto=format&fit=crop&w=1200&q=80',
     comparisonTable: { headers: ['Tool', 'Speed', 'Price'], rows: [['Linear', 'Elite', '$0+'], ['Trello', 'Moderate', '$0+'], ['ClickUp', 'Fast', '$5+']] },
     translations: {
       en: {
@@ -80,7 +80,7 @@ export const TRANSLATED_ARTICLES: TranslatedArticle[] = [
     category: 'software',
     date: 'May 12, 2025',
     author: 'Mark Smith',
-    image: 'https://images.unsplash.com/photo-1554224155-8d041c21755a?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?auto=format&fit=crop&w=1200&q=80',
     translations: {
       en: {
         title: 'Top 8 Billing & Invoicing Apps for Small Business',
@@ -110,7 +110,7 @@ export const TRANSLATED_ARTICLES: TranslatedArticle[] = [
     category: 'tech-stacks',
     date: 'June 1, 2025',
     author: 'Sarah Chen',
-    image: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
     translations: {
       en: {
         title: 'The Next.js 16 + Supabase SaaS Blueprint',
@@ -140,7 +140,7 @@ export const TRANSLATED_ARTICLES: TranslatedArticle[] = [
     category: 'ai-tools',
     date: 'July 15, 2025',
     author: 'Alex Rivier',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1676299081847-824916de030a?auto=format&fit=crop&w=1200&q=80',
     translations: {
       en: {
         title: 'The Rise of AI Coding Agents: Cursor vs. Windsurf',
@@ -170,7 +170,7 @@ export const TRANSLATED_ARTICLES: TranslatedArticle[] = [
     category: 'guides',
     date: 'August 20, 2025',
     author: 'Founder X',
-    image: 'https://images.unsplash.com/photo-1551288049-bbbda536ad0a?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
     translations: {
       en: {
         title: 'How to Scale a Solo Dev Shop to $10k MRR',
@@ -200,7 +200,7 @@ export const TRANSLATED_ARTICLES: TranslatedArticle[] = [
     category: 'software',
     date: 'September 5, 2025',
     author: 'Jane Doe',
-    image: 'https://images.unsplash.com/photo-1550745165-95373a8018f2?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1629654297299-c8506221ca97?auto=format&fit=crop&w=1200&q=80',
     translations: {
       en: {
         title: 'The Best IDEs for 2026: A Comprehensive Review',
