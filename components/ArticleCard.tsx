@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Article } from '../types';
+import { useLanguage } from '../i18n';
 
 interface Props {
   article: Article;
@@ -10,6 +11,7 @@ interface Props {
 
 const ArticleCard: React.FC<Props> = ({ article, featured }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const { t } = useLanguage();
   
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80';
@@ -57,7 +59,7 @@ const ArticleCard: React.FC<Props> = ({ article, featured }) => {
         </p>
         
         <div className="mt-12 flex items-center font-black text-indigo-600 dark:text-indigo-400 transition-all">
-          <span className="text-xs uppercase tracking-[0.2em]">Read Technical Analysis</span>
+          <span className="text-xs uppercase tracking-[0.2em]">{t.common.readAnalysis}</span>
           <i className="fas fa-arrow-right ml-3 text-sm group-hover:translate-x-2 transition-transform"></i>
         </div>
       </div>

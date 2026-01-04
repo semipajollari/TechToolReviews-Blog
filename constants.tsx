@@ -4,12 +4,12 @@ import { Article, Category, NavItem } from './types';
 export const BRAND_NAME = "TechToolReviews";
 
 export const NAV_ITEMS: NavItem[] = [
-  { label: 'Home', path: '/', icon: 'fa-home' },
-  { label: 'Software', path: '/category/software', icon: 'fa-laptop-code' },
-  { label: 'Tech Stacks', path: '/category/tech-stacks', icon: 'fa-layer-group' },
-  { label: 'AI Tools', path: '/category/ai-tools', icon: 'fa-robot' },
-  { label: 'Architecture', path: '/architecture', icon: 'fa-server' },
-  { label: 'About', path: '/about', icon: 'fa-info-circle' },
+  { label: 'Home', labelKey: 'home', path: '/', icon: 'fa-home' },
+  { label: 'Software', labelKey: 'software', path: '/category/software', icon: 'fa-laptop-code' },
+  { label: 'Tech Stacks', labelKey: 'techStacks', path: '/category/tech-stacks', icon: 'fa-layer-group' },
+  { label: 'AI Tools', labelKey: 'aiTools', path: '/category/ai-tools', icon: 'fa-robot' },
+  { label: 'Architecture', labelKey: 'architecture', path: '/architecture', icon: 'fa-server' },
+  { label: 'About', labelKey: 'about', path: '/about', icon: 'fa-info-circle' },
 ];
 
 const generateArticles = (): Article[] => {

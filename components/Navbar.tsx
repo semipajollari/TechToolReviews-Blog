@@ -140,7 +140,7 @@ const Navbar: React.FC = () => {
                 to={item.path}
                 className={`text-sm font-bold transition-colors hover:text-indigo-600 ${location.pathname === item.path ? 'text-indigo-600 underline decoration-2 underline-offset-8' : 'text-gray-600 dark:text-gray-300'}`}
               >
-                {item.label}
+                {t.nav[item.labelKey]}
               </Link>
             ))}
             
@@ -191,7 +191,7 @@ const Navbar: React.FC = () => {
               className={`flex items-center space-x-4 p-4 rounded-2xl text-lg font-bold transition-colors ${location.pathname === item.path ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
             >
               <i className={`fas ${item.icon} w-6`}></i>
-              <span>{item.label}</span>
+              <span>{t.nav[item.labelKey]}</span>
             </Link>
           ))}
           <div className="pt-4 space-y-3">

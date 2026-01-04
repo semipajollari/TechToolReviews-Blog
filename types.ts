@@ -42,6 +42,7 @@ export interface Category {
 
 export interface NavItem {
   label: string;
+  labelKey: 'home' | 'software' | 'techStacks' | 'aiTools' | 'architecture' | 'about';
   path: string;
   icon?: string;
 }

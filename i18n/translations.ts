@@ -84,6 +84,33 @@ export interface Translations {
     missionText: string;
     team: string;
     contact: string;
+    whyWeStarted: string;
+    whyWeStartedText1: string;
+    whyWeStartedText2: string;
+    toolsTested: string;
+    monthlyReaders: string;
+    techToolStandard: string;
+    rigorousTesting: string;
+    rigorousTestingText: string;
+    unbiasedReviews: string;
+    unbiasedReviewsText: string;
+    constantUpdates: string;
+    constantUpdatesText: string;
+  };
+  // Category page
+  category: {
+    notFound: string;
+    notFoundText: string;
+    returnHome: string;
+    database: string;
+    sector: string;
+    activeBenchmarks: string;
+    reviewsVerified: string;
+    pendingTitle: string;
+    pendingText: string;
+    getNotified: string;
+    alternativeSectors: string;
+    exploreDatabase: string;
   };
   // Common
   common: {
@@ -93,6 +120,23 @@ export interface Translations {
     learnMore: string;
     getStarted: string;
     seeAll: string;
+    readAnalysis: string;
+  };
+  // Tech Stack Advisor
+  techAdvisor: {
+    poweredBy: string;
+    title: string;
+    description: string;
+    placeholder: string;
+    generateStack: string;
+    minChars: string;
+    failedGenerate: string;
+    unexpectedError: string;
+    strategy: string;
+    frontend: string;
+    backend: string;
+    database: string;
+    hosting: string;
   };
 }
 
@@ -175,6 +219,32 @@ export const translations: Record<Language, Translations> = {
       missionText: 'To help developers and teams make informed decisions about the tools they use.',
       team: 'Our Team',
       contact: 'Contact Us',
+      whyWeStarted: 'Why we started this platform',
+      whyWeStartedText1: 'Founded in 2024 by a group of developers and digital strategists, TechToolReviews was born out of frustration. The "best software" lists we saw online were filled with outdated recommendations and low-quality affiliate filler.',
+      whyWeStartedText2: 'We decided to build the resource we wanted to see: deeply technical, rigorously tested, and always focused on the "2026 perspective"—looking at where tools are going, not just where they\'ve been.',
+      toolsTested: 'Tools Tested',
+      monthlyReaders: 'Monthly Readers',
+      techToolStandard: 'The TechTool Standard',
+      rigorousTesting: 'Rigorous Testing',
+      rigorousTestingText: 'We don\'t just read the marketing copy. We set up real production environments and test workflows for at least 30 days before publishing.',
+      unbiasedReviews: 'Unbiased Reviews',
+      unbiasedReviewsText: 'Our editorial team is separate from our business team. Our ratings cannot be bought or influenced by external partners.',
+      constantUpdates: 'Constant Updates',
+      constantUpdatesText: 'Software moves fast. We update our major guides every 90 days to ensure you\'re never reading outdated or legacy advice.',
+    },
+    category: {
+      notFound: 'Category Not Found',
+      notFoundText: 'The requested architectural sector does not exist.',
+      returnHome: 'Return to Mission Control',
+      database: 'Database',
+      sector: 'Sector',
+      activeBenchmarks: 'Active Benchmarks',
+      reviewsVerified: 'REVIEWS VERIFIED',
+      pendingTitle: 'Editorial Deep Dives Pending',
+      pendingText: 'Our engineering team is currently stress-testing tools in this sector. 2026 reports are scheduled for release next quarter.',
+      getNotified: 'Get Notified of Release',
+      alternativeSectors: 'Alternative Sectors',
+      exploreDatabase: 'Explore Database',
     },
     common: {
       loading: 'Loading...',
@@ -183,6 +253,22 @@ export const translations: Record<Language, Translations> = {
       learnMore: 'Learn More',
       getStarted: 'Get Started',
       seeAll: 'See All',
+      readAnalysis: 'Read Technical Analysis',
+    },
+    techAdvisor: {
+      poweredBy: 'Gemini-Powered Engine',
+      title: 'AI Stack Builder',
+      description: 'Describe your business idea in a few words. Our AI will analyze the latest 2026 tech trends and generate a production-ready infrastructure blueprint instantly.',
+      placeholder: "e.g., 'A video editing SaaS for TikTok creators'",
+      generateStack: 'Generate Stack',
+      minChars: 'Please provide a more detailed description (at least 10 characters).',
+      failedGenerate: 'Failed to generate stack. The AI service may be temporarily unavailable.',
+      unexpectedError: 'An unexpected error occurred. Please try again.',
+      strategy: 'The 2026 Strategy',
+      frontend: 'Frontend',
+      backend: 'Backend',
+      database: 'Database',
+      hosting: 'Hosting',
     },
   },
   de: {
@@ -263,6 +349,32 @@ export const translations: Record<Language, Translations> = {
       missionText: 'Entwicklern und Teams zu helfen, fundierte Entscheidungen über ihre Tools zu treffen.',
       team: 'Unser Team',
       contact: 'Kontakt',
+      whyWeStarted: 'Warum wir diese Plattform gestartet haben',
+      whyWeStartedText1: 'Gegründet 2024 von einer Gruppe von Entwicklern und digitalen Strategen, entstand TechToolReviews aus Frustration. Die "beste Software"-Listen, die wir online sahen, waren voller veralteter Empfehlungen und minderwertiger Affiliate-Inhalte.',
+      whyWeStartedText2: 'Wir beschlossen, die Ressource zu erstellen, die wir sehen wollten: technisch tiefgehend, rigoros getestet und immer mit Blick auf die "2026-Perspektive"—nicht wo Tools waren, sondern wohin sie gehen.',
+      toolsTested: 'Getestete Tools',
+      monthlyReaders: 'Monatliche Leser',
+      techToolStandard: 'Der TechTool-Standard',
+      rigorousTesting: 'Rigoroses Testen',
+      rigorousTestingText: 'Wir lesen nicht nur das Marketing. Wir richten echte Produktionsumgebungen ein und testen Workflows mindestens 30 Tage vor der Veröffentlichung.',
+      unbiasedReviews: 'Unvoreingenommene Bewertungen',
+      unbiasedReviewsText: 'Unser Redaktionsteam ist getrennt von unserem Geschäftsteam. Unsere Bewertungen können nicht gekauft oder beeinflusst werden.',
+      constantUpdates: 'Ständige Updates',
+      constantUpdatesText: 'Software entwickelt sich schnell. Wir aktualisieren unsere wichtigsten Guides alle 90 Tage, damit Sie nie veraltete Ratschläge lesen.',
+    },
+    category: {
+      notFound: 'Kategorie nicht gefunden',
+      notFoundText: 'Der angeforderte Architektursektor existiert nicht.',
+      returnHome: 'Zurück zur Startseite',
+      database: 'Datenbank',
+      sector: 'Sektor',
+      activeBenchmarks: 'Aktive Benchmarks',
+      reviewsVerified: 'BEWERTUNGEN VERIFIZIERT',
+      pendingTitle: 'Redaktionelle Tiefenanalysen ausstehend',
+      pendingText: 'Unser Ingenieurteam testet derzeit Tools in diesem Sektor. 2026-Berichte sind für das nächste Quartal geplant.',
+      getNotified: 'Benachrichtigung erhalten',
+      alternativeSectors: 'Alternative Sektoren',
+      exploreDatabase: 'Datenbank erkunden',
     },
     common: {
       loading: 'Wird geladen...',
@@ -271,6 +383,22 @@ export const translations: Record<Language, Translations> = {
       learnMore: 'Mehr erfahren',
       getStarted: 'Loslegen',
       seeAll: 'Alle anzeigen',
+      readAnalysis: 'Technische Analyse lesen',
+    },
+    techAdvisor: {
+      poweredBy: 'Gemini-Powered Engine',
+      title: 'KI Stack Builder',
+      description: 'Beschreiben Sie Ihre Geschäftsidee in wenigen Worten. Unsere KI analysiert die neuesten 2026 Tech-Trends und erstellt sofort einen produktionsbereiten Infrastruktur-Blueprint.',
+      placeholder: "z.B. 'Eine Videobearbeitungs-SaaS für TikTok-Creator'",
+      generateStack: 'Stack generieren',
+      minChars: 'Bitte geben Sie eine detailliertere Beschreibung (mindestens 10 Zeichen).',
+      failedGenerate: 'Stack-Generierung fehlgeschlagen. Der KI-Dienst ist möglicherweise vorübergehend nicht verfügbar.',
+      unexpectedError: 'Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
+      strategy: 'Die 2026 Strategie',
+      frontend: 'Frontend',
+      backend: 'Backend',
+      database: 'Datenbank',
+      hosting: 'Hosting',
     },
   },
   es: {
@@ -351,6 +479,32 @@ export const translations: Record<Language, Translations> = {
       missionText: 'Ayudar a desarrolladores y equipos a tomar decisiones informadas sobre las herramientas que usan.',
       team: 'Nuestro Equipo',
       contact: 'Contáctanos',
+      whyWeStarted: 'Por qué creamos esta plataforma',
+      whyWeStartedText1: 'Fundada en 2024 por un grupo de desarrolladores y estrategas digitales, TechToolReviews nació de la frustración. Las listas de "mejor software" que vimos en línea estaban llenas de recomendaciones obsoletas y contenido de afiliados de baja calidad.',
+      whyWeStartedText2: 'Decidimos construir el recurso que queríamos ver: técnicamente profundo, rigurosamente probado, y siempre enfocado en la "perspectiva 2026"—mirando hacia dónde van las herramientas, no solo dónde han estado.',
+      toolsTested: 'Herramientas Probadas',
+      monthlyReaders: 'Lectores Mensuales',
+      techToolStandard: 'El Estándar TechTool',
+      rigorousTesting: 'Pruebas Rigurosas',
+      rigorousTestingText: 'No solo leemos el marketing. Configuramos entornos de producción reales y probamos flujos de trabajo durante al menos 30 días antes de publicar.',
+      unbiasedReviews: 'Reseñas Imparciales',
+      unbiasedReviewsText: 'Nuestro equipo editorial está separado de nuestro equipo de negocios. Nuestras calificaciones no pueden ser compradas ni influenciadas por socios externos.',
+      constantUpdates: 'Actualizaciones Constantes',
+      constantUpdatesText: 'El software se mueve rápido. Actualizamos nuestras guías principales cada 90 días para asegurar que nunca leas consejos obsoletos.',
+    },
+    category: {
+      notFound: 'Categoría No Encontrada',
+      notFoundText: 'El sector arquitectónico solicitado no existe.',
+      returnHome: 'Volver al Centro de Control',
+      database: 'Base de Datos',
+      sector: 'Sector',
+      activeBenchmarks: 'Benchmarks Activos',
+      reviewsVerified: 'RESEÑAS VERIFICADAS',
+      pendingTitle: 'Análisis Profundos Pendientes',
+      pendingText: 'Nuestro equipo de ingeniería está probando herramientas en este sector. Los informes 2026 están programados para el próximo trimestre.',
+      getNotified: 'Recibir Notificación',
+      alternativeSectors: 'Sectores Alternativos',
+      exploreDatabase: 'Explorar Base de Datos',
     },
     common: {
       loading: 'Cargando...',
@@ -359,6 +513,22 @@ export const translations: Record<Language, Translations> = {
       learnMore: 'Saber más',
       getStarted: 'Comenzar',
       seeAll: 'Ver todo',
+      readAnalysis: 'Leer Análisis Técnico',
+    },
+    techAdvisor: {
+      poweredBy: 'Motor Impulsado por Gemini',
+      title: 'Constructor de Stack IA',
+      description: 'Describe tu idea de negocio en pocas palabras. Nuestra IA analizará las últimas tendencias tech de 2026 y generará un blueprint de infraestructura listo para producción al instante.',
+      placeholder: "ej., 'Un SaaS de edición de video para creadores de TikTok'",
+      generateStack: 'Generar Stack',
+      minChars: 'Por favor proporciona una descripción más detallada (al menos 10 caracteres).',
+      failedGenerate: 'Error al generar el stack. El servicio de IA puede estar temporalmente no disponible.',
+      unexpectedError: 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.',
+      strategy: 'La Estrategia 2026',
+      frontend: 'Frontend',
+      backend: 'Backend',
+      database: 'Base de Datos',
+      hosting: 'Hosting',
     },
   },
   fr: {
@@ -439,6 +609,32 @@ export const translations: Record<Language, Translations> = {
       missionText: 'Aider les développeurs et les équipes à prendre des décisions éclairées sur leurs outils.',
       team: 'Notre Équipe',
       contact: 'Contactez-nous',
+      whyWeStarted: 'Pourquoi nous avons créé cette plateforme',
+      whyWeStartedText1: 'Fondée en 2024 par un groupe de développeurs et stratèges numériques, TechToolReviews est née de la frustration. Les listes "meilleurs logiciels" que nous voyions en ligne étaient remplies de recommandations obsolètes et de contenu affilié de mauvaise qualité.',
+      whyWeStartedText2: 'Nous avons décidé de créer la ressource que nous voulions voir : techniquement approfondie, rigoureusement testée, et toujours axée sur la "perspective 2026"—regardant où vont les outils, pas seulement où ils ont été.',
+      toolsTested: 'Outils Testés',
+      monthlyReaders: 'Lecteurs Mensuels',
+      techToolStandard: 'Le Standard TechTool',
+      rigorousTesting: 'Tests Rigoureux',
+      rigorousTestingText: 'Nous ne lisons pas que le marketing. Nous configurons de vrais environnements de production et testons les workflows pendant au moins 30 jours avant de publier.',
+      unbiasedReviews: 'Avis Impartiaux',
+      unbiasedReviewsText: 'Notre équipe éditoriale est séparée de notre équipe commerciale. Nos notes ne peuvent être achetées ni influencées par des partenaires externes.',
+      constantUpdates: 'Mises à Jour Constantes',
+      constantUpdatesText: 'Le logiciel évolue vite. Nous mettons à jour nos guides principaux tous les 90 jours pour que vous ne lisiez jamais de conseils obsolètes.',
+    },
+    category: {
+      notFound: 'Catégorie Non Trouvée',
+      notFoundText: 'Le secteur architectural demandé n\'existe pas.',
+      returnHome: 'Retour au Centre de Contrôle',
+      database: 'Base de Données',
+      sector: 'Secteur',
+      activeBenchmarks: 'Benchmarks Actifs',
+      reviewsVerified: 'AVIS VÉRIFIÉS',
+      pendingTitle: 'Analyses Approfondies en Attente',
+      pendingText: 'Notre équipe d\'ingénierie teste actuellement des outils dans ce secteur. Les rapports 2026 sont prévus pour le prochain trimestre.',
+      getNotified: 'Être Notifié',
+      alternativeSectors: 'Secteurs Alternatifs',
+      exploreDatabase: 'Explorer la Base de Données',
     },
     common: {
       loading: 'Chargement...',
@@ -447,6 +643,22 @@ export const translations: Record<Language, Translations> = {
       learnMore: 'En savoir plus',
       getStarted: 'Commencer',
       seeAll: 'Voir tout',
+      readAnalysis: 'Lire l\'Analyse Technique',
+    },
+    techAdvisor: {
+      poweredBy: 'Moteur Propulsé par Gemini',
+      title: 'Constructeur de Stack IA',
+      description: 'Décrivez votre idée d\'entreprise en quelques mots. Notre IA analysera les dernières tendances tech de 2026 et générera instantanément un blueprint d\'infrastructure prêt pour la production.',
+      placeholder: "ex., 'Un SaaS de montage vidéo pour les créateurs TikTok'",
+      generateStack: 'Générer le Stack',
+      minChars: 'Veuillez fournir une description plus détaillée (au moins 10 caractères).',
+      failedGenerate: 'Échec de la génération du stack. Le service IA peut être temporairement indisponible.',
+      unexpectedError: 'Une erreur inattendue s\'est produite. Veuillez réessayer.',
+      strategy: 'La Stratégie 2026',
+      frontend: 'Frontend',
+      backend: 'Backend',
+      database: 'Base de Données',
+      hosting: 'Hébergement',
     },
   },
 };

@@ -1,6 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { getTechStackRecommendation, Recommendation } from '../services/geminiService';
+import { useLanguage } from '../i18n';
 
 const TechStackAdvisor: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -8,6 +9,7 @@ const TechStackAdvisor: React.FC = () => {
   const [result, setResult] = useState<Recommendation | null>(null);
   const [error, setError] = useState<string | null>(null);
   const isSubmitting = useRef(false);
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,7 +17,7 @@ const TechStackAdvisor: React.FC = () => {
     if (!trimmedQuery || isSubmitting.current) return;
     
     if (trimmedQuery.length < 10) {
-      setError('Please provide a more detailed description (at least 10 characters).');
+      setError(t.techAdvisor.minChars);
       return;
     }
     
@@ -27,12 +29,12 @@ const TechStackAdvisor: React.FC = () => {
     try {
       const recommendation = await getTechStackRecommendation(trimmedQuery);
       if (!recommendation) {
-        setError('Failed to generate stack. The AI service may be temporarily unavailable.');
+        setError(t.techAdvisor.failedGenerate);
       } else {
         setResult(recommendation);
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      setError(t.techAdvisor.unexpectedError);
       console.error('TechStackAdvisor error:', err);
     } finally {
       setLoading(false);
@@ -49,11 +51,11 @@ const TechStackAdvisor: React.FC = () => {
       <div className="relative z-10 max-w-3xl">
         <div className="inline-flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-900/40 px-3 py-1 rounded-full mb-6 text-indigo-600 dark:text-indigo-400 font-black text-xs uppercase tracking-widest">
           <i className="fas fa-sparkles"></i>
-          <span>Gemini-Powered Engine</span>
+          <span>{t.techAdvisor.poweredBy}</span>
         </div>
-        <h2 className="text-3xl sm:text-5xl font-[900] text-gray-900 dark:text-white mb-6 tracking-tight">AI Stack Builder</h2>
+        <h2 className="text-3xl sm:text-5xl font-[900] text-gray-900 dark:text-white mb-6 tracking-tight">{t.techAdvisor.title}</h2>
         <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 leading-relaxed font-medium">
-          Describe your business idea in a few words. Our AI will analyze the latest 2026 tech trends and generate a production-ready infrastructure blueprint instantly.
+          {t.techAdvisor.description}
         </p>
 
         <form onSubmit={handleSubmit} className="relative mb-12">
@@ -61,7 +63,7 @@ const TechStackAdvisor: React.FC = () => {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="e.g., 'A video editing SaaS for TikTok creators'"
+            placeholder={t.techAdvisor.placeholder}
             className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl py-5 px-8 pr-40 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 text-lg transition-all dark:text-white"
           />
           <button 
@@ -72,7 +74,7 @@ const TechStackAdvisor: React.FC = () => {
               <i className="fas fa-circle-notch fa-spin"></i>
             ) : (
               <>
-                <span className="hidden sm:inline mr-2">Generate Stack</span>
+                <span className="hidden sm:inline mr-2">{t.techAdvisor.generateStack}</span>
                 <i className="fas fa-bolt"></i>
               </>
             )}
@@ -98,19 +100,19 @@ const TechStackAdvisor: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-6 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-2xl">
-                <span className="text-[10px] uppercase text-indigo-500 font-black block mb-2 tracking-[0.2em]">Frontend</span>
+                <span className="text-[10px] uppercase text-indigo-500 font-black block mb-2 tracking-[0.2em]">{t.techAdvisor.frontend}</span>
                 <span className="font-bold text-gray-900 dark:text-white text-lg">{result.frontend}</span>
               </div>
               <div className="p-6 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-2xl">
-                <span className="text-[10px] uppercase text-indigo-500 font-black block mb-2 tracking-[0.2em]">Backend</span>
+                <span className="text-[10px] uppercase text-indigo-500 font-black block mb-2 tracking-[0.2em]">{t.techAdvisor.backend}</span>
                 <span className="font-bold text-gray-900 dark:text-white text-lg">{result.backend}</span>
               </div>
               <div className="p-6 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-2xl">
-                <span className="text-[10px] uppercase text-indigo-500 font-black block mb-2 tracking-[0.2em]">Database</span>
+                <span className="text-[10px] uppercase text-indigo-500 font-black block mb-2 tracking-[0.2em]">{t.techAdvisor.database}</span>
                 <span className="font-bold text-gray-900 dark:text-white text-lg">{result.database}</span>
               </div>
               <div className="p-6 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-2xl">
-                <span className="text-[10px] uppercase text-indigo-500 font-black block mb-2 tracking-[0.2em]">Hosting</span>
+                <span className="text-[10px] uppercase text-indigo-500 font-black block mb-2 tracking-[0.2em]">{t.techAdvisor.hosting}</span>
                 <span className="font-bold text-gray-900 dark:text-white text-lg">{result.hosting}</span>
               </div>
             </div>
@@ -118,7 +120,7 @@ const TechStackAdvisor: React.FC = () => {
           <div className="bg-indigo-600 text-white p-10 rounded-[2rem] shadow-2xl relative">
             <h4 className="font-black text-xl mb-6 flex items-center uppercase tracking-widest">
               <i className="fas fa-quote-left mr-4 text-indigo-300"></i>
-              The 2026 Strategy
+              {t.techAdvisor.strategy}
             </h4>
             <p className="text-indigo-50 text-xl leading-relaxed italic font-medium">
               {result.reasoning}
