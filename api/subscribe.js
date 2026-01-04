@@ -75,39 +75,41 @@ function getSubscriberModel() {
 }
 
 /**
- * Send email via Gmail SMTP (using fetch to Nodemailer-compatible endpoint)
- * For Vercel serverless, we use nodemailer directly
+ * Send email via Resend API
  */
 async function sendEmail(to, subject, html) {
-  const smtpUser = process.env.SMTP_USER || process.env.FROM_EMAIL;
-  const smtpPass = process.env.SMTP_PASS;
+  const apiKey = process.env.RESEND_API_KEY;
   
-  if (!smtpUser || !smtpPass) {
-    console.log('[Email] SMTP credentials not configured, skipping email');
+  if (!apiKey) {
+    console.log('[Email] Resend API key not configured, skipping email');
     return false;
   }
 
   try {
-    // Dynamic import for nodemailer (works in Vercel serverless)
-    const nodemailer = await import('nodemailer');
-    
-    const transporter = nodemailer.default.createTransport({
-      service: 'gmail',
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        from: 'TechToolReviews <onboarding@resend.dev>',
+        reply_to: 'techtoolreviews.co@gmail.com',
+        to: [to],
+        subject,
+        html,
+      }),
     });
 
-    await transporter.sendMail({
-      from: `"TechToolReviews" <${smtpUser}>`,
-      to,
-      subject,
-      html,
-    });
-
-    console.log('[Email] ✅ Sent to:', to);
-    return true;
+    if (response.ok) {
+      const data = await response.json();
+      console.log('[Email] ✅ Sent to:', to, 'ID:', data.id);
+      return true;
+    } else {
+      const error = await response.json();
+      console.error('[Email] ❌ Failed:', error);
+      return false;
+    }
   } catch (error) {
     console.error('[Email] ❌ Error:', error.message);
     return false;

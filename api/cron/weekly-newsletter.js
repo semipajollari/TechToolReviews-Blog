@@ -41,36 +41,33 @@ function getSubscriberModel() {
 }
 
 /**
- * Send email via Gmail SMTP
+ * Send email via Resend API
  */
 async function sendEmail(to, subject, html) {
-  const smtpUser = process.env.SMTP_USER || process.env.FROM_EMAIL;
-  const smtpPass = process.env.SMTP_PASS;
+  const apiKey = process.env.RESEND_API_KEY;
   
-  if (!smtpUser || !smtpPass) {
-    console.log('[Newsletter] SMTP credentials not configured');
+  if (!apiKey) {
+    console.log('[Newsletter] Resend API key not configured');
     return false;
   }
 
   try {
-    const nodemailer = await import('nodemailer');
-    
-    const transporter = nodemailer.default.createTransport({
-      service: 'gmail',
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        from: 'TechToolReviews <onboarding@resend.dev>',
+        reply_to: 'techtoolreviews.co@gmail.com',
+        to: [to],
+        subject,
+        html,
+      }),
     });
 
-    await transporter.sendMail({
-      from: `"TechToolReviews" <${smtpUser}>`,
-      to,
-      subject,
-      html,
-    });
-
-    return true;
+    return response.ok;
   } catch (error) {
     console.error('[Newsletter] Email error:', error.message);
     return false;
