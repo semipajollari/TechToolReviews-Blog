@@ -9,8 +9,22 @@ import About from './pages/About';
 import BackendDesign from './pages/BackendDesign';
 import InsiderList from './pages/InsiderList';
 import { useLanguage } from './i18n';
+import { AdminAuthProvider, AdminLogin, AdminDashboard } from './admin';
 
-const App: React.FC = () => {
+// Admin Layout - No navbar/footer, full dark theme
+const AdminLayout: React.FC = () => {
+  return (
+    <AdminAuthProvider>
+      <Routes>
+        <Route path="/" element={<AdminLogin />} />
+        <Route path="/dashboard" element={<AdminDashboard />} />
+      </Routes>
+    </AdminAuthProvider>
+  );
+};
+
+// Main Site Layout
+const MainLayout: React.FC = () => {
   const { pathname } = useLocation();
   const { t } = useLanguage();
 
@@ -88,6 +102,18 @@ const App: React.FC = () => {
       </footer>
     </div>
   );
+};
+
+// Main App Component - Routes between Admin and Main layouts
+const App: React.FC = () => {
+  const { pathname } = useLocation();
+
+  // Check if we're on admin routes
+  if (pathname.startsWith('/admin')) {
+    return <AdminLayout />;
+  }
+
+  return <MainLayout />;
 };
 
 export default App;
