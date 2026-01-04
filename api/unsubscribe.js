@@ -104,7 +104,7 @@ function getPageHtml(success, title, message) {
     <div class="icon">${icon}</div>
     <h1>${title}</h1>
     <p>${message}</p>
-    <a href="https://tech-tool-reviews-blog.vercel.app" class="btn">Go to Homepage</a>
+    <a href="https://techtoolreviews.co" class="btn">Go to Homepage</a>
   </div>
 </body>
 </html>`;

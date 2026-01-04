@@ -100,7 +100,7 @@ function getSuccessHtml(message, description) {
     <div class="icon">✓</div>
     <h1>${message}</h1>
     <p>${description}</p>
-    <a href="https://tech-tool-reviews-blog.vercel.app" class="btn">Go to Homepage</a>
+    <a href="https://techtoolreviews.co" class="btn">Go to Homepage</a>
   </div>
 </body>
 </html>`;
@@ -165,7 +165,7 @@ function getErrorHtml(message, description) {
     <div class="icon">✕</div>
     <h1>${message}</h1>
     <p>${description}</p>
-    <a href="https://tech-tool-reviews-blog.vercel.app" class="btn">Go to Homepage</a>
+    <a href="https://techtoolreviews.co" class="btn">Go to Homepage</a>
   </div>
 </body>
 </html>`;
