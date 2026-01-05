@@ -369,13 +369,14 @@ async function handleUpdateArticle(req, res, id) {
   if (!existing) return res.status(404).json({ success: false, message: 'Article not found' });
 
   const wasUnpublished = !existing.published;
-  const { title, description, imageUrl, affiliateLink, merchantLogo, category, author, published } = req.body;
+  const { title, description, imageUrl, affiliateLink, affiliateName, merchantLogo, category, author, published } = req.body;
 
   const update = {};
   if (title !== undefined) update.title = title;
   if (description !== undefined) update.description = description;
   if (imageUrl !== undefined) update.imageUrl = imageUrl;
   if (affiliateLink !== undefined) update.affiliateLink = affiliateLink;
+  if (affiliateName !== undefined) update.affiliateName = affiliateName;
   if (merchantLogo !== undefined) update.merchantLogo = merchantLogo;
   if (category !== undefined) update.category = category;
   if (author !== undefined) update.author = author;

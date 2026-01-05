@@ -8,8 +8,10 @@ interface Article {
   description: string;
   imageUrl: string;
   affiliateLink: string;
+  affiliateName: string;
   merchantLogo: string;
   category: string;
+  author: string;
   slug: string;
   published: boolean;
   createdAt: string;
@@ -50,6 +52,7 @@ const AdminDashboard: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loadingArticles, setLoadingArticles] = useState(true);
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -134,6 +137,36 @@ const AdminDashboard: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
+  const handleEdit = (article: Article) => {
+    setEditingArticle(article);
+    setTitle(article.title);
+    setDescription(article.description);
+    setImageUrl(article.imageUrl);
+    setAffiliateLink(article.affiliateLink);
+    setAffiliateName(article.affiliateName || '');
+    setMerchantLogo(article.merchantLogo || '');
+    setCategory(article.category);
+    setAuthor(article.author || 'Sarah Chen');
+    setError('');
+    setSuccess('');
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingArticle(null);
+    setTitle('');
+    setDescription('');
+    setImageUrl('');
+    setAffiliateLink('');
+    setAffiliateName('');
+    setMerchantLogo('');
+    setCategory('software');
+    setAuthor('Sarah Chen');
+    setError('');
+    setSuccess('');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -163,8 +196,13 @@ const AdminDashboard: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/admin?action=articles', {
-        method: 'POST',
+      const isEditing = !!editingArticle;
+      const url = isEditing 
+        ? `/api/admin?action=articles&id=${editingArticle._id}`
+        : '/api/admin?action=articles';
+      
+      const response = await fetch(url, {
+        method: isEditing ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -185,7 +223,7 @@ const AdminDashboard: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        setSuccess('Article created successfully!');
+        setSuccess(isEditing ? 'Article updated successfully!' : 'Article created successfully!');
         setTitle('');
         setDescription('');
         setImageUrl('');
@@ -194,9 +232,10 @@ const AdminDashboard: React.FC = () => {
         setMerchantLogo('');
         setCategory('software');
         setAuthor('Sarah Chen');
+        setEditingArticle(null);
         fetchArticles();
       } else {
-        setError(data.message || 'Failed to create article');
+        setError(data.message || `Failed to ${isEditing ? 'update' : 'create'} article`);
       }
     } catch (err) {
       setError('Network error. Please try again.');
@@ -288,9 +327,22 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Create Article Form */}
+        {/* Create/Edit Article Form */}
         <div className="bg-gray-800 rounded-2xl border border-gray-700 p-6 mb-8">
-          <h2 className="text-xl font-bold text-white mb-6">Create New Article</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-white">
+              {editingArticle ? 'Edit Article' : 'Create New Article'}
+            </h2>
+            {editingArticle && (
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg"
+              >
+                Cancel Edit
+              </button>
+            )}
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Title */}
@@ -316,11 +368,27 @@ const AdminDashboard: React.FC = () => {
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                rows={6}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
-                placeholder="Enter article content..."
+                rows={10}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y font-mono text-sm"
+                placeholder="Write your article content here...
+
+Use this formatting:
+### Heading Title
+Creates a bold styled heading with left border
+
+Regular paragraph text goes here. Each paragraph should be separated by a blank line.
+
+Another paragraph with your content..."
                 required
               />
+              <div className="mt-2 p-3 bg-gray-700/50 rounded-lg border border-gray-600">
+                <p className="text-xs text-gray-400 font-medium mb-2">📝 Formatting Guide:</p>
+                <ul className="text-xs text-gray-500 space-y-1">
+                  <li><code className="bg-gray-600 px-1 rounded">### Your Heading</code> — Creates a bold styled subheading</li>
+                  <li>Separate paragraphs with a blank line for proper spacing</li>
+                  <li>The affiliate box will be auto-generated from your product name</li>
+                </ul>
+              </div>
             </div>
 
             {/* Image Upload */}
@@ -456,7 +524,9 @@ const AdminDashboard: React.FC = () => {
               disabled={isSubmitting}
               className="w-full py-3 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50"
             >
-              {isSubmitting ? 'Creating...' : 'Create Article'}
+              {isSubmitting 
+                ? (editingArticle ? 'Updating...' : 'Creating...') 
+                : (editingArticle ? 'Update Article' : 'Create Article')}
             </button>
           </form>
         </div>
@@ -493,6 +563,12 @@ const AdminDashboard: React.FC = () => {
                     </p>
                   </div>
                   <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(article)}
+                      className="px-3 py-1.5 text-sm bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 rounded"
+                    >
+                      Edit
+                    </button>
                     <a
                       href={`/article/${article.slug}`}
                       target="_blank"
