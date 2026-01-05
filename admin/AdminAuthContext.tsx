@@ -18,14 +18,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE = '';
-
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [admin, setAdmin] = useState<Admin | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check for existing session on mount
   useEffect(() => {
     const storedToken = localStorage.getItem('adminToken');
     const storedAdmin = localStorage.getItem('adminData');
@@ -44,16 +41,31 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (username: string, password: string) => {
+    const apiUrl = `${window.location.origin}/api/admin?action=login`;
+    console.log('[AdminAuth] Attempting login to:', apiUrl);
+
     try {
-      const response = await fetch(`${API_BASE}/api/admin?action=login`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await response.json();
+      console.log('[AdminAuth] Response status:', response.status);
+
+      let data;
+      const text = await response.text();
+      console.log('[AdminAuth] Response text:', text.substring(0, 500));
+
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error('[AdminAuth] JSON parse error:', parseError);
+        return { success: false, error: `Server error: ${text.substring(0, 100)}` };
+      }
 
       if (data.success && data.token) {
         setToken(data.token);
@@ -63,10 +75,11 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         return { success: true };
       }
 
-      return { success: false, error: data.message || 'Login failed' };
-    } catch (error) {
-      console.error('Login error:', error);
-      return { success: false, error: 'Network error. Please try again.' };
+      return { success: false, error: data.message || `Login failed (${response.status})` };
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('[AdminAuth] Fetch error:', err);
+      return { success: false, error: `Connection failed: ${err.message}` };
     }
   };
 

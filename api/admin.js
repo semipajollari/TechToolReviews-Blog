@@ -225,40 +225,60 @@ export default async function handler(req, res) {
 // ============================================================
 
 async function handleLogin(req, res) {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({ success: false, message: 'Username and password required' });
-  }
+  try {
+    console.log('[handleLogin] Request body:', JSON.stringify(req.body));
+    const { username, password } = req.body || {};
+    
+    if (!username || !password) {
+      console.log('[handleLogin] Missing credentials');
+      return res.status(400).json({ success: false, message: 'Username and password required' });
+    }
 
-  const Admin = getAdminModel();
+    const Admin = getAdminModel();
+    console.log('[handleLogin] Looking for admin:', username.toLowerCase());
 
-  let admin = await Admin.findOne({ username: username.toLowerCase() }).select('+password');
+    let admin = await Admin.findOne({ username: username.toLowerCase() }).select('+password');
+    console.log('[handleLogin] Found admin:', !!admin);
 
-  // Create default admin if not exists
-  if (!admin && username.toLowerCase() === 'admin') {
-    admin = new Admin({
-      username: 'admin',
-      password: process.env.ADMIN_PASSWORD || 'TechTool@2026!',
-      email: process.env.ADMIN_EMAIL || 'admin@techtoolreviews.co',
-      role: 'superadmin',
-    });
+    // Create default admin if not exists
+    if (!admin && username.toLowerCase() === 'admin') {
+      console.log('[handleLogin] Creating default admin');
+      admin = new Admin({
+        username: 'admin',
+        password: process.env.ADMIN_PASSWORD || 'TechTool@2026!',
+        email: process.env.ADMIN_EMAIL || 'admin@techtoolreviews.co',
+        role: 'superadmin',
+      });
+      await admin.save();
+      admin = await Admin.findOne({ username: 'admin' }).select('+password');
+    }
+
+    if (!admin) {
+      console.log('[handleLogin] Admin not found');
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    const passwordMatch = await admin.comparePassword(password);
+    console.log('[handleLogin] Password match:', passwordMatch);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    admin.lastLogin = new Date();
     await admin.save();
-    admin = await Admin.findOne({ username: 'admin' }).select('+password');
+
+    const token = generateToken(admin._id.toString(), admin.username, admin.role);
+    console.log('[handleLogin] Login successful');
+    return res.status(200).json({
+      success: true,
+      token,
+      admin: { id: admin._id, username: admin.username, email: admin.email, role: admin.role },
+    });
+  } catch (error) {
+    console.error('[handleLogin] Error:', error);
+    return res.status(500).json({ success: false, message: 'Login error: ' + error.message });
   }
-
-  if (!admin || !(await admin.comparePassword(password))) {
-    return res.status(401).json({ success: false, message: 'Invalid credentials' });
-  }
-
-  admin.lastLogin = new Date();
-  await admin.save();
-
-  const token = generateToken(admin._id.toString(), admin.username, admin.role);
-  return res.status(200).json({
-    success: true,
-    token,
-    admin: { id: admin._id, username: admin.username, email: admin.email, role: admin.role },
-  });
 }
 
 async function handleUpload(req, res) {
