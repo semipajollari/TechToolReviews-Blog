@@ -46,13 +46,13 @@ const AdminLogin: React.FC = () => {
         <div className="text-center mb-8">
           <div className="inline-flex items-center space-x-3 mb-4">
             <div className="bg-indigo-600 text-white p-3 rounded-xl shadow-lg shadow-indigo-600/30">
-              <i className="fas fa-bolt text-2xl"></i>
+              <i className="fas fa-shield-alt text-2xl"></i>
             </div>
-            <span className="font-black text-3xl text-white tracking-tight">
-              TechToolReviews<span className="text-indigo-500">.</span>
-            </span>
           </div>
-          <p className="text-gray-400 text-lg">Admin Panel</p>
+          <h1 className="font-black text-3xl text-white tracking-tight mb-2">
+            ADMIN DASHBOARD
+          </h1>
+          <p className="text-gray-400 text-lg">TechToolReviews Control Panel</p>
         </div>
 
         {/* Login Card */}

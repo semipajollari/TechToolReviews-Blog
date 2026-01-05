@@ -30,14 +30,12 @@ const AdminDashboard: React.FC = () => {
   const [success, setSuccess] = useState('');
   const [loadingArticles, setLoadingArticles] = useState(true);
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       navigate('/admin');
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  // Fetch articles on mount
   useEffect(() => {
     if (token) {
       fetchArticles();
@@ -120,7 +118,6 @@ const AdminDashboard: React.FC = () => {
     setError('');
     setSuccess('');
 
-    // Validation
     if (!title.trim() || title.length < 5) {
       setError('Title must be at least 5 characters');
       return;
@@ -159,7 +156,7 @@ const AdminDashboard: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        setSuccess('Article created successfully! It will appear on the blog.');
+        setSuccess('Article created successfully!');
         setTitle('');
         setDescription('');
         setImageUrl('');
@@ -199,7 +196,8 @@ const AdminDashboard: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        <h1 className="text-white text-2xl font-bold">ADMIN DASHBOARD</h1>
+        <div className="ml-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
   }
@@ -216,9 +214,9 @@ const AdminDashboard: React.FC = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <div className="bg-indigo-600 text-white p-2 rounded-lg">
-                <i className="fas fa-bolt"></i>
+                <i className="fas fa-shield-alt"></i>
               </div>
-              <span className="font-bold text-xl text-white">Admin Dashboard</span>
+              <span className="font-bold text-xl text-white">ADMIN DASHBOARD</span>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-400 text-sm hidden sm:block">
@@ -277,7 +275,7 @@ const AdminDashboard: React.FC = () => {
               />
             </div>
 
-            {/* Description / Text */}
+            {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Text / Description <span className="text-red-400">*</span>
@@ -318,11 +316,7 @@ const AdminDashboard: React.FC = () => {
                   disabled={isUploading}
                   className="px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white rounded-lg disabled:opacity-50"
                 >
-                  {isUploading ? (
-                    <><i className="fas fa-spinner fa-spin mr-2"></i>Uploading...</>
-                  ) : (
-                    <><i className="fas fa-upload mr-2"></i>Upload</>
-                  )}
+                  {isUploading ? 'Uploading...' : 'Upload'}
                 </button>
               </div>
               {imageUrl && (
@@ -356,11 +350,7 @@ const AdminDashboard: React.FC = () => {
               disabled={isSubmitting}
               className="w-full py-3 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50"
             >
-              {isSubmitting ? (
-                <><i className="fas fa-spinner fa-spin mr-2"></i>Creating...</>
-              ) : (
-                <><i className="fas fa-plus mr-2"></i>Create Article</>
-              )}
+              {isSubmitting ? 'Creating...' : 'Create Article'}
             </button>
           </form>
         </div>
@@ -379,7 +369,6 @@ const AdminDashboard: React.FC = () => {
             </div>
           ) : articles.length === 0 ? (
             <div className="p-8 text-center">
-              <i className="fas fa-newspaper text-4xl text-gray-600 mb-4"></i>
               <p className="text-gray-400">No articles yet</p>
             </div>
           ) : (
@@ -404,13 +393,13 @@ const AdminDashboard: React.FC = () => {
                       rel="noopener noreferrer"
                       className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded"
                     >
-                      <i className="fas fa-external-link-alt"></i>
+                      View
                     </a>
                     <button
                       onClick={() => handleDelete(article._id, article.title)}
                       className="px-3 py-1.5 text-sm bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded"
                     >
-                      <i className="fas fa-trash"></i>
+                      Delete
                     </button>
                   </div>
                 </div>
