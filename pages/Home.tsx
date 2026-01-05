@@ -123,30 +123,18 @@ const Home: React.FC = () => {
         <ArticleCard article={featuredArticle} featured />
       </section>
 
-      {/* Dynamic Grid + AI Tool Side-by-Side */}
+      {/* Dynamic Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 border-t border-gray-100 dark:border-gray-900">
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
-          {/* Main Content: Article Grid */}
-          <div className="w-full lg:w-2/3">
-             <div className="flex items-center space-x-4 mb-10">
-               <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{t.home.latestReviews}</h3>
-               <div className="h-1 flex-grow bg-indigo-50 dark:bg-gray-800 rounded-full"></div>
-             </div>
-             
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
-                 {latestArticles.slice(1).map((article) => (
-                    <ArticleCard key={article.id} article={article} />
-                 ))}
-             </div>
-          </div>
-          
-          {/* Sidebar: AI Tool */}
-          <div className="w-full lg:w-1/3">
-             <div className="sticky top-24">
-                <TechStackAdvisor />
-             </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 sm:gap-16">
+          {latestArticles.slice(1).map((article) => (
+            <ArticleCard key={article.id} article={article} />
+          ))}
         </div>
+      </section>
+
+      {/* AI Tool & Footer Prep */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <TechStackAdvisor />
       </section>
 
       {/* Brand Value CTA */}
