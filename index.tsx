@@ -1,7 +1,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { HashRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { LanguageProvider } from './i18n';
 import ErrorBoundary from './components/ErrorBoundary';
 import App from './App';
@@ -15,11 +15,11 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <HashRouter>
+      <BrowserRouter>
         <LanguageProvider>
           <App />
         </LanguageProvider>
-      </HashRouter>
+      </BrowserRouter>
     </ErrorBoundary>
   </React.StrictMode>
 );
