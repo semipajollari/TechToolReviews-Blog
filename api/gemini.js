@@ -1,7 +1,7 @@
 // Gemini AI API endpoint for tech stack recommendations
-const https = require('https');
+import https from 'https';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -30,6 +30,7 @@ module.exports = async function handler(req, res) {
 
     const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyA3q6sWr7ghbmihjrB1auWlEbsgcqoqtyo';
     
+    // We want a JSON response
     const prompt = `You are a tech stack advisor. Based on this idea: "${sanitizedQuery}"
 
 Return ONLY this JSON format, nothing else:
@@ -44,7 +45,7 @@ Return ONLY this JSON format, nothing else:
       const options = {
         hostname: 'generativelanguage.googleapis.com',
         port: 443,
-        path: `/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+        path: `/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,9 +70,6 @@ Return ONLY this JSON format, nothing else:
       request.end();
     });
 
-    // Log for debugging
-    console.log('Gemini response status:', result.statusCode);
-    
     if (result.statusCode !== 200) {
       console.error('Gemini error response:', result.body);
       let errorMsg = 'AI service error';
@@ -79,6 +77,12 @@ Return ONLY this JSON format, nothing else:
         const errData = JSON.parse(result.body);
         errorMsg = errData.error?.message || errorMsg;
       } catch (e) {}
+      
+      // If quota exceeded
+      if (result.statusCode === 429) {
+        return res.status(200).json({ success: false, message: 'AI service busy, try again later' });
+      }
+      
       return res.status(200).json({ success: false, message: errorMsg });
     }
 
@@ -86,13 +90,11 @@ Return ONLY this JSON format, nothing else:
     try {
       data = JSON.parse(result.body);
     } catch (e) {
-      console.error('Failed to parse Gemini response:', result.body);
       return res.status(200).json({ success: false, message: 'Invalid AI response' });
     }
 
     const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!textContent) {
-      console.error('No text in response:', JSON.stringify(data));
       return res.status(200).json({ success: false, message: 'Empty AI response' });
     }
 
@@ -105,7 +107,6 @@ Return ONLY this JSON format, nothing else:
       }
       recommendation = JSON.parse(jsonStr.trim());
     } catch (e) {
-      console.error('JSON parse error. Raw text:', textContent);
       return res.status(200).json({ success: false, message: 'Could not parse AI response' });
     }
 
@@ -120,7 +121,7 @@ Return ONLY this JSON format, nothing else:
     return res.status(200).json({ success: true, recommendation });
 
   } catch (error) {
-    console.error('Handler error:', error.message, error.stack);
-    return res.status(200).json({ success: false, message: 'Server error: ' + error.message });
+    console.error('Handler error:', error);
+    return res.status(200).json({ success: false, message: 'Server error' });
   }
-};
+}
