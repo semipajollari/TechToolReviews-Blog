@@ -53,6 +53,17 @@ const AdminDashboard: React.FC = () => {
   const [success, setSuccess] = useState('');
   const [loadingArticles, setLoadingArticles] = useState(true);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  
+  // New State for Subscribers & Newsletter
+  const [activeTab, setActiveTab] = useState<'articles' | 'subscribers'>('articles');
+  const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
+  const [loadingSubscribers, setLoadingSubscribers] = useState(false);
+  
+  const [newsletterSubject, setNewsletterSubject] = useState('');
+  const [newsletterContent, setNewsletterContent] = useState('');
+  const [sendingNewsletter, setSendingNewsletter] = useState(false);
+  const [testEmail, setTestEmail] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -62,9 +73,10 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     if (token) {
-      fetchArticles();
+      if (activeTab === 'articles') fetchArticles();
+      if (activeTab === 'subscribers') fetchSubscribers();
     }
-  }, [token]);
+  }, [token, activeTab]);
 
   const fetchArticles = async () => {
     setLoadingArticles(true);
@@ -80,6 +92,63 @@ const AdminDashboard: React.FC = () => {
       console.error('Failed to fetch articles:', err);
     } finally {
       setLoadingArticles(false);
+    }
+  };
+
+  const fetchSubscribers = async () => {
+    setLoadingSubscribers(true);
+    try {
+      const response = await fetch('/api/admin?action=subscribers', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSubscribers(data.subscribers || []);
+        setStats(data.stats || null);
+      }
+    } catch (err) {
+      setError('Failed to fetch subscribers');
+    } finally {
+      setLoadingSubscribers(false);
+    }
+  };
+
+  const handleSendNewsletter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!confirm(testEmail ? 'Send TEST email to yourself?' : 'Send this to ALL verified subscribers? This cannot be undone.')) return;
+    
+    setSendingNewsletter(true);
+    setError('');
+    setSuccess('');
+    
+    try {
+      const response = await fetch('/api/admin?action=newsletter', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          subject: newsletterSubject,
+          content: newsletterContent,
+          test: testEmail
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setSuccess(data.message || 'Newsletter sent!');
+        if (!testEmail) {
+          setNewsletterSubject('');
+          setNewsletterContent('');
+        }
+      } else {
+        setError(data.message || 'Failed to send newsletter');
+      }
+    } catch (err) {
+      setError('Network error sending newsletter');
+    } finally {
+      setSendingNewsletter(false);
     }
   };
 
@@ -282,7 +351,7 @@ const AdminDashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <div className="bg-indigo-600 text-white p-2 rounded-lg">
@@ -290,6 +359,27 @@ const AdminDashboard: React.FC = () => {
               </div>
               <span className="font-bold text-xl text-white">ADMIN DASHBOARD</span>
             </div>
+            
+            {/* Navigation Tabs */}
+            <div className="hidden sm:flex space-x-4">
+              <button 
+                onClick={() => setActiveTab('articles')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'articles' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                }`}
+              >
+                Articles
+              </button>
+              <button 
+                onClick={() => setActiveTab('subscribers')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'subscribers' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                }`}
+              >
+                Subscribers
+              </button>
+            </div>
+
             <div className="flex items-center space-x-4">
               <span className="text-gray-400 text-sm hidden sm:block">
                 {admin?.username}
@@ -306,7 +396,27 @@ const AdminDashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Mobile Tabs */}
+        <div className="sm:hidden flex space-x-2 mb-6">
+          <button 
+            onClick={() => setActiveTab('articles')}
+            className={`flex-1 px-4 py-2 rounded-lg text-sm font-center transition-colors ${
+              activeTab === 'articles' ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-400'
+            }`}
+          >
+            Articles
+          </button>
+          <button 
+            onClick={() => setActiveTab('subscribers')}
+            className={`flex-1 px-4 py-2 rounded-lg text-sm font-center transition-colors ${
+              activeTab === 'subscribers' ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-400'
+            }`}
+          >
+            Subscribers
+          </button>
+        </div>
+
         {/* Alerts */}
         {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center">
@@ -327,6 +437,135 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* VIEW: SUBSCRIBERS */}
+        {activeTab === 'subscribers' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column: Stats & List */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Stats Card */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
+                   <p className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">Total Subscribers</p>
+                   <p className="text-3xl font-black text-white">{stats?.total || 0}</p>
+                </div>
+                <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
+                   <p className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">Verified</p>
+                   <p className="text-3xl font-black text-indigo-400">{stats?.verified || 0}</p>
+                </div>
+              </div>
+
+              {/* List */}
+              <div className="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-700">
+                  <h2 className="text-lg font-semibold text-white">Recent Subscribers</h2>
+                </div>
+                {loadingSubscribers ? (
+                  <div className="p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+                  </div>
+                ) : subscribers.length === 0 ? (
+                  <div className="p-8 text-center text-gray-400">No subscribers yet</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead className="bg-gray-900/50">
+                        <tr>
+                          <th className="px-6 py-3 text-xs font-medium text-gray-400 uppercase">Email</th>
+                          <th className="px-6 py-3 text-xs font-medium text-gray-400 uppercase">Status</th>
+                          <th className="px-6 py-3 text-xs font-medium text-gray-400 uppercase">Joined</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-700">
+                        {subscribers.map((sub, i) => (
+                          <tr key={sub._id || i} className="hover:bg-gray-750">
+                            <td className="px-6 py-4 text-sm text-white font-medium">{sub.email}</td>
+                            <td className="px-6 py-4 text-sm">
+                              {sub.isVerified ? (
+                                <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded-full text-xs">Verified</span>
+                              ) : (
+                                <span className="px-2 py-1 bg-yellow-900/30 text-yellow-400 rounded-full text-xs">Pending</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-400">
+                              {new Date(sub.createdAt).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column: Newsletter Composer */}
+            <div className="lg:col-span-1">
+              <div className="bg-gray-800 rounded-2xl border border-gray-700 p-6 sticky top-24">
+                <h2 className="text-lg font-bold text-white mb-6 flex items-center">
+                  <i className="fas fa-paper-plane mr-3 text-indigo-400"></i>
+                  Send Newsletter
+                </h2>
+                
+                <form onSubmit={handleSendNewsletter} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Subject</label>
+                    <input 
+                      type="text" 
+                      value={newsletterSubject}
+                      onChange={e => setNewsletterSubject(e.target.value)}
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="Weekly Tech Update..."
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">HTML Content</label>
+                    <textarea 
+                      value={newsletterContent}
+                      onChange={e => setNewsletterContent(e.target.value)}
+                      rows={8}
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="<p>Hello world...</p>"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-2">Supports basic HTML tags.</p>
+                  </div>
+
+                  <div className="flex items-center space-x-2 pt-2">
+                    <input 
+                      type="checkbox" 
+                      id="testMode"
+                      checked={testEmail}
+                      onChange={e => setTestEmail(e.target.checked)}
+                      className="rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label htmlFor="testMode" className="text-sm text-gray-300 select-none">Send test email only (to me)</label>
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    disabled={sendingNewsletter}
+                    className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg disabled:opacity-50 flex items-center justify-center transition-all"
+                  >
+                    {sendingNewsletter ? (
+                      <i className="fas fa-circle-notch fa-spin"></i>
+                    ) : (
+                      <>
+                        <span>{testEmail ? 'Send Test' : 'Broadcast'}</span>
+                        <i className="fas fa-arrow-right ml-2"></i>
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* VIEW: ARTICLES */}
+        {activeTab === 'articles' && (
+          <>
         {/* Create/Edit Article Form */}
         <div className="bg-gray-800 rounded-2xl border border-gray-700 p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
@@ -589,6 +828,9 @@ Another paragraph with your content..."
             </div>
           )}
         </div>
+        </>
+      )}
+
       </main>
     </div>
   );

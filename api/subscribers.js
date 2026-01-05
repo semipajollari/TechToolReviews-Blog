@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import mongoose from 'mongoose';
+import { Resend } from 'resend';
 
 // Validation function
 const validateEmail = (email) => {
@@ -196,6 +197,41 @@ export default async function handler(req, res) {
       console.log('[Subscribers] 💾 Saving to MongoDB...');
       await newSubscriber.save();
       console.log('[Subscribers] ✅ Subscriber created');
+
+      // Send Welcome Email
+      if (process.env.RESEND_API_KEY) {
+        try {
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          await resend.emails.send({
+            from: 'TechToolReviews <onboarding@resend.dev>',
+            to: newSubscriber.email,
+            subject: 'Welcome to the Insider List!',
+            html: `
+              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+                <h1 style="color: #4f46e5;">Welcome to the Inner Circle! 🚀</h1>
+                <p>Thanks for joining TechToolReviews. You're now on the list for exclusive tech stack breakdowns and tool reviews.</p>
+                <p>Here is what you can expect:</p>
+                <ul>
+                  <li>Weekly analysis of high-growth tech stacks</li>
+                  <li>Unbiased reviews of new developer tools</li>
+                  <li>AI implementation guides</li>
+                </ul>
+                <p style="margin-top: 30px;">
+                  <a href="https://techtoolreviews.co/category/guides" style="background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Browse Latest Guides</a>
+                </p>
+                <p style="font-size: 12px; color: #888; margin-top: 40px;">
+                  You can <a href="https://techtoolreviews.co/unsubscribe?token=${newSubscriber.unsubscribeToken || ''}" style="color: #888;">unsubscribe</a> at any time.
+                </p>
+              </div>
+            `
+          });
+          console.log('[Subscribers] 📧 Welcome email sent');
+        } catch (emailError) {
+          console.error('[Subscribers] ❌ Failed to send welcome email:', emailError.message);
+        }
+      } else {
+        console.log('[Subscribers] ⚠️ RESEND_API_KEY missing - skipping welcome email');
+      }
 
       return res.status(201).json({
         success: true,
