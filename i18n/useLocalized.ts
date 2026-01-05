@@ -34,7 +34,8 @@ function convertDbArticle(dbArticle: any): Article {
     title: dbArticle.title,
     excerpt: dbArticle.description.substring(0, 200) + '...',
     content: dbArticle.description,
-    affiliateLinks: dbArticle.affiliateLink ? [{ label: 'Get It Now', url: dbArticle.affiliateLink, position: 'top' as const }] : [],
+    affiliateLinks: dbArticle.affiliateLink ? [{ label: dbArticle.affiliateName || 'Get It Now', url: dbArticle.affiliateLink, position: 'top' as const }] : [],
+    affiliateName: dbArticle.affiliateName,
     merchantLogo: dbArticle.merchantLogo,
   };
 }

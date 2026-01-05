@@ -6,6 +6,7 @@ const articleSchema = new mongoose.Schema({
   description: { type: String, required: true, trim: true, maxlength: 10000 },
   imageUrl: { type: String, required: true },
   affiliateLink: { type: String, required: true },
+  affiliateName: { type: String, default: '' },
   merchantLogo: { type: String, default: '' },
   slug: { type: String, unique: true, lowercase: true, trim: true },
   published: { type: Boolean, default: false },

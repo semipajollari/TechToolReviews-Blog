@@ -14,6 +14,7 @@ export interface Article {
   pros?: string[];
   cons?: string[];
   affiliateLinks?: AffiliateLink[];
+  affiliateName?: string;
   merchantLogo?: string;
   seoMeta?: {
     title: string;

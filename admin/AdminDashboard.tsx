@@ -22,6 +22,14 @@ const CATEGORIES = [
   { value: 'guides', label: 'Guides' },
 ];
 
+const EDITORS = [
+  { value: 'Sarah Chen', label: 'Sarah Chen - Senior Tech Editor' },
+  { value: 'Marcus Rodriguez', label: 'Marcus Rodriguez - AI Specialist' },
+  { value: 'Emily Watson', label: 'Emily Watson - Software Analyst' },
+  { value: 'James Mitchell', label: 'James Mitchell - Dev Tools Expert' },
+  { value: 'Priya Sharma', label: 'Priya Sharma - Cloud Architect' },
+];
+
 const AdminDashboard: React.FC = () => {
   const { admin, token, logout, isAuthenticated, isLoading } = useAdminAuth();
   const navigate = useNavigate();
@@ -34,6 +42,8 @@ const AdminDashboard: React.FC = () => {
   const [affiliateLink, setAffiliateLink] = useState('');
   const [merchantLogo, setMerchantLogo] = useState('');
   const [category, setCategory] = useState('software');
+  const [author, setAuthor] = useState('Sarah Chen');
+  const [affiliateName, setAffiliateName] = useState('');
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -145,6 +155,10 @@ const AdminDashboard: React.FC = () => {
       setError('Please enter a valid affiliate link URL');
       return;
     }
+    if (!affiliateName.trim()) {
+      setError('Please enter the product/company name for the affiliate');
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -160,8 +174,10 @@ const AdminDashboard: React.FC = () => {
           description: description.trim(),
           imageUrl: imageUrl.trim(),
           affiliateLink: affiliateLink.trim(),
+          affiliateName: affiliateName.trim(),
           merchantLogo: merchantLogo.trim(),
           category: category,
+          author: author,
           published: true,
         }),
       });
@@ -171,11 +187,13 @@ const AdminDashboard: React.FC = () => {
       if (data.success) {
         setSuccess('Article created successfully!');
         setTitle('');
-        setMerchantLogo('');
-        setCategory('software');
         setDescription('');
         setImageUrl('');
         setAffiliateLink('');
+        setAffiliateName('');
+        setMerchantLogo('');
+        setCategory('software');
+        setAuthor('Sarah Chen');
         fetchArticles();
       } else {
         setError(data.message || 'Failed to create article');
@@ -359,22 +377,19 @@ const AdminDashboard: React.FC = () => {
               />
             </div>
 
-            {/* Category */}
+            {/* Affiliate/Product Name */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Category <span className="text-red-400">*</span>
+                Product/Company Name <span className="text-red-400">*</span>
               </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </option>
-                ))}
-              </select>
+              <input
+                type="text"
+                value={affiliateName}
+                onChange={(e) => setAffiliateName(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="e.g., Notion, Figma, Stripe..."
+                required
+              />
             </div>
 
             {/* Merchant Logo */}
@@ -397,6 +412,42 @@ const AdminDashboard: React.FC = () => {
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
               )}
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Category <span className="text-red-400">*</span>
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                {CATEGORIES.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Editor/Author */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Editor <span className="text-red-400">*</span>
+              </label>
+              <select
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                {EDITORS.map((editor) => (
+                  <option key={editor.value} value={editor.value}>
+                    {editor.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Submit Button */}

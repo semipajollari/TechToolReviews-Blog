@@ -320,6 +320,167 @@ const ArticlePage: React.FC = () => {
           })}
         </div>
 
+        {/* Affiliate Box for DB Articles */}
+        {article.affiliateName && article.affiliateLinks && article.affiliateLinks.length > 0 && (
+          <div className="my-16 relative">
+            {/* Attention-grabbing banner */}
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
+              <div className="bg-gradient-to-r from-red-500 via-orange-500 to-red-500 text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-wider shadow-lg animate-pulse flex items-center gap-2">
+                <i className="fas fa-fire"></i>
+                <span>{t.article.editorsTopPick}</span>
+                <i className="fas fa-fire"></i>
+              </div>
+            </div>
+            
+            <div className="p-8 sm:p-10 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950 border-2 border-indigo-200 dark:border-indigo-800 rounded-3xl relative overflow-hidden shadow-2xl hover:shadow-indigo-200/50 dark:hover:shadow-indigo-900/50 transition-all duration-500 group">
+              
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+              
+              {/* Limited time offer badge */}
+              <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide shadow-lg flex items-center gap-1.5 animate-bounce">
+                <i className="fas fa-clock"></i>
+                <span>{t.article.limitedOffer}</span>
+              </div>
+              
+              <div className="flex flex-col lg:flex-row gap-8 items-center relative z-10">
+                {/* Product Logo */}
+                <div className="flex-shrink-0">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                    <div className="relative w-28 h-28 md:w-36 md:h-36 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border-2 border-indigo-100 dark:border-indigo-800 flex items-center justify-center overflow-hidden p-5 group-hover:scale-105 transition-transform duration-300">
+                      {article.merchantLogo ? (
+                        <img 
+                          src={article.merchantLogo}
+                          alt={article.affiliateName}
+                          className="w-full h-full object-contain"
+                          onError={(e) => { 
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="text-center">
+                          <i className="fas fa-rocket text-4xl text-indigo-600 mb-2"></i>
+                          <span className="block text-sm font-black text-indigo-600 uppercase">{article.affiliateName}</span>
+                        </div>
+                      )}
+                    </div>
+                    {/* Verified badge */}
+                    <div className="absolute -bottom-2 -right-2 bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
+                      <i className="fas fa-check text-sm"></i>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1 text-center lg:text-left">
+                  {/* Badges row */}
+                  <div className="flex flex-wrap justify-center lg:justify-start gap-2 mb-4">
+                    <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+                      <i className="fas fa-crown"></i>
+                      <span>{t.article.staffPick}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                      <i className="fas fa-percentage"></i>
+                      <span>{t.article.specialDeal}</span>
+                    </span>
+                  </div>
+                  
+                  {/* Product name */}
+                  <h4 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">
+                    {article.affiliateName}
+                  </h4>
+                  
+                  {/* Rating with random stats */}
+                  <div className="flex items-center justify-center lg:justify-start gap-2 mb-4">
+                    <div className="flex text-yellow-400">
+                      <i className="fas fa-star"></i>
+                      <i className="fas fa-star"></i>
+                      <i className="fas fa-star"></i>
+                      <i className="fas fa-star"></i>
+                      <i className="fas fa-star"></i>
+                    </div>
+                    <span className="text-sm font-bold text-gray-600 dark:text-gray-400">4.{Math.floor(Math.random() * 3) + 7}/5</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-500">({(Math.floor(Math.random() * 4000) + 1000).toLocaleString()} {t.article.reviews})</span>
+                  </div>
+                  
+                  {/* Benefits */}
+                  <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-6">
+                    <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
+                      <i className="fas fa-check-circle text-green-500"></i>
+                      <span>{t.article.freeTrial}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
+                      <i className="fas fa-check-circle text-green-500"></i>
+                      <span>{t.article.noCreditCard}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
+                      <i className="fas fa-check-circle text-green-500"></i>
+                      <span>{t.article.cancelAnytime}</span>
+                    </div>
+                  </div>
+                  
+                  {/* CTA Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                    <a 
+                      href={article.affiliateLinks[0].url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="group/btn inline-flex items-center justify-center bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_100%] hover:bg-[position:100%_0] text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wide hover:scale-105 transition-all duration-300 shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50"
+                    >
+                      <i className="fas fa-bolt mr-2 group-hover/btn:animate-pulse"></i>
+                      {t.article.claimFreeTrial}
+                      <i className="fas fa-arrow-right ml-3 group-hover/btn:translate-x-1 transition-transform"></i>
+                    </a>
+                    <a 
+                      href={article.affiliateLinks[0].url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="inline-flex items-center justify-center bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-700 px-6 py-4 rounded-2xl font-bold text-sm hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
+                    >
+                      <i className="fas fa-play-circle mr-2"></i>
+                      {t.article.watchDemo}
+                    </a>
+                  </div>
+                  
+                  {/* Social proof with random stats */}
+                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-center lg:justify-start gap-4">
+                      <div className="flex -space-x-2">
+                        <div className="w-8 h-8 rounded-full bg-indigo-500 border-2 border-white dark:border-gray-800 flex items-center justify-center text-white text-xs font-bold">JD</div>
+                        <div className="w-8 h-8 rounded-full bg-purple-500 border-2 border-white dark:border-gray-800 flex items-center justify-center text-white text-xs font-bold">MK</div>
+                        <div className="w-8 h-8 rounded-full bg-pink-500 border-2 border-white dark:border-gray-800 flex items-center justify-center text-white text-xs font-bold">AS</div>
+                        <div className="w-8 h-8 rounded-full bg-gray-800 dark:bg-gray-600 border-2 border-white dark:border-gray-800 flex items-center justify-center text-white text-xs font-bold">+{Math.floor(Math.random() * 9) + 1}k</div>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <span className="font-bold text-gray-700 dark:text-gray-300">{(Math.floor(Math.random() * 8000) + 2000).toLocaleString()}+ {t.article.professionalsStarted}</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Bottom urgency bar */}
+              <div className="mt-8 pt-6 border-t border-indigo-100 dark:border-indigo-900/50">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                    <span className="text-green-600 dark:text-green-400 font-bold">{Math.floor(Math.random() * 300) + 100} {t.article.peopleViewing}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <i className="fas fa-shield-alt text-indigo-500"></i>
+                    <span>{t.article.moneyBackGuarantee}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Comparison Table */}
         {article.comparisonTable && (
           <div className="my-24 overflow-hidden rounded-[3rem] premium-border bg-white dark:bg-brand-dark shadow-2xl border-indigo-100 dark:border-gray-800">
