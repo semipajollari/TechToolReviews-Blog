@@ -251,8 +251,8 @@ const ArticlePage: React.FC = () => {
                           </div>
                         </div>
                         
-                        {/* CTA Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                        {/* CTA Button */}
+                        <div className="flex justify-center lg:justify-start">
                           <a 
                             href={linkUrl || '#'} 
                             target="_blank" 
@@ -262,15 +262,6 @@ const ArticlePage: React.FC = () => {
                             <i className="fas fa-bolt mr-2 group-hover/btn:animate-pulse"></i>
                             {t.article.claimFreeTrial}
                             <i className="fas fa-arrow-right ml-3 group-hover/btn:translate-x-1 transition-transform"></i>
-                          </a>
-                          <a 
-                            href={linkUrl || '#'} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="inline-flex items-center justify-center bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-700 px-6 py-4 rounded-2xl font-bold text-sm hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
-                          >
-                            <i className="fas fa-play-circle mr-2"></i>
-                            {t.article.watchDemo}
                           </a>
                         </div>
                         
@@ -421,8 +412,8 @@ const ArticlePage: React.FC = () => {
                     </div>
                   </div>
                   
-                  {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                  {/* CTA Button */}
+                  <div className="flex justify-center lg:justify-start">
                     <a 
                       href={article.affiliateLinks[0].url} 
                       target="_blank" 
@@ -432,15 +423,6 @@ const ArticlePage: React.FC = () => {
                       <i className="fas fa-bolt mr-2 group-hover/btn:animate-pulse"></i>
                       {t.article.claimFreeTrial}
                       <i className="fas fa-arrow-right ml-3 group-hover/btn:translate-x-1 transition-transform"></i>
-                    </a>
-                    <a 
-                      href={article.affiliateLinks[0].url} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="inline-flex items-center justify-center bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-700 px-6 py-4 rounded-2xl font-bold text-sm hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
-                    >
-                      <i className="fas fa-play-circle mr-2"></i>
-                      {t.article.watchDemo}
                     </a>
                   </div>
                   

@@ -2,12 +2,15 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation, Link, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import CookieConsent from './components/CookieConsent';
 import Home from './pages/Home';
 import CategoryPage from './pages/CategoryPage';
 import ArticlePage from './pages/ArticlePage';
 import About from './pages/About';
 import BackendDesign from './pages/BackendDesign';
 import InsiderList from './pages/InsiderList';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import { useLanguage } from './i18n';
 import { AdminAuthProvider, AdminLogin, AdminDashboard } from './admin';
 
@@ -32,9 +35,14 @@ const MainLayout: React.FC = () => {
           <Route path="/article/:id" element={<ArticlePage />} />
           <Route path="/architecture" element={<BackendDesign />} />
           <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>
+
+      {/* Cookie Consent Banner */}
+      <CookieConsent />
 
       <footer className="bg-white dark:bg-black border-t border-gray-200 dark:border-gray-900 pt-20 pb-12 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,6 +57,17 @@ const MainLayout: React.FC = () => {
               <p className="text-gray-600 dark:text-gray-400 text-lg max-w-sm leading-relaxed font-medium">
                 {t.footer.description}
               </p>
+              {/* Contact Info */}
+              <div className="space-y-3">
+                <h4 className="font-black text-gray-900 dark:text-gray-50 uppercase tracking-[0.2em] text-[10px]">Contact Us</h4>
+                <a 
+                  href="mailto:techtoolreviews.co@gmail.com" 
+                  className="flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
+                >
+                  <i className="fas fa-envelope text-indigo-600"></i>
+                  <span>techtoolreviews.co@gmail.com</span>
+                </a>
+              </div>
               <div className="flex space-x-5">
                 <a href="#" className="w-12 h-12 bg-gray-100 dark:bg-gray-900 rounded-2xl flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
                   <i className="fab fa-instagram text-lg"></i>
@@ -74,8 +93,8 @@ const MainLayout: React.FC = () => {
               <ul className="space-y-4 text-gray-600 dark:text-gray-400 font-bold">
                 <li><Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{t.nav.about}</Link></li>
                 <li><Link to="/architecture" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{t.nav.architecture}</Link></li>
-                <li><a href="#" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{t.footer.privacy}</a></li>
-                <li><a href="#" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{t.footer.terms}</a></li>
+                <li><Link to="/privacy" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{t.footer.privacy}</Link></li>
+                <li><Link to="/terms" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{t.footer.terms}</Link></li>
               </ul>
             </div>
           </div>

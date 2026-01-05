@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLanguage, Language, languageNames, languageFlags } from '../i18n';
+import { useLanguage, Language } from '../i18n';
 
 const LanguageSwitcher: React.FC = () => {
   const { language, setLanguage } = useLanguage();
@@ -7,6 +7,21 @@ const LanguageSwitcher: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const languages: Language[] = ['en', 'de', 'es', 'fr'];
+
+  // Country codes for flag display
+  const countryFlags: { [key in Language]: string } = {
+    en: '🇬🇧',
+    de: '🇩🇪',
+    es: '🇪🇸',
+    fr: '🇫🇷',
+  };
+
+  const countryNames: { [key in Language]: string } = {
+    en: 'English',
+    de: 'Deutsch',
+    es: 'Español',
+    fr: 'Français',
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -26,8 +41,8 @@ const LanguageSwitcher: React.FC = () => {
         className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-sm font-medium text-gray-700 dark:text-gray-300"
         aria-label="Select language"
       >
-        <span className="text-lg">{languageFlags[language]}</span>
-        <span className="hidden sm:inline">{language.toUpperCase()}</span>
+        <span className="text-lg">{countryFlags[language]}</span>
+        <span className="hidden sm:inline">{countryNames[language]}</span>
         <i className={`fas fa-chevron-down text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`}></i>
       </button>
 
@@ -46,8 +61,8 @@ const LanguageSwitcher: React.FC = () => {
                   : 'text-gray-700 dark:text-gray-300'
               }`}
             >
-              <span className="text-xl">{languageFlags[lang]}</span>
-              <span className="font-medium">{languageNames[lang]}</span>
+              <span className="text-xl">{countryFlags[lang]}</span>
+              <span className="font-medium">{countryNames[lang]}</span>
               {language === lang && (
                 <i className="fas fa-check ml-auto text-indigo-600 dark:text-indigo-400"></i>
               )}
