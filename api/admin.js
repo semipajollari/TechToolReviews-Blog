@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import cloudinary from 'cloudinary';
 import Resend from 'resend';
+import jwt from 'jsonwebtoken';
 
 // ============================================================
 // MODELS (inline to avoid import issues)
@@ -75,7 +76,6 @@ function getSubscriberModel() {
 // ============================================================
 // AUTH HELPERS
 // ============================================================
-import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'techtoolreviews-admin-secret-2026';
 
