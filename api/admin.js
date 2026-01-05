@@ -1,8 +1,31 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import cloudinary from 'cloudinary';
-import Resend from 'resend';
 import jwt from 'jsonwebtoken';
+
+// Lazy load heavy modules only when needed
+let cloudinaryV2 = null;
+let resendClient = null;
+
+function getCloudinary() {
+  if (!cloudinaryV2) {
+    const cloudinary = require('cloudinary');
+    cloudinaryV2 = cloudinary.v2;
+    cloudinaryV2.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+  }
+  return cloudinaryV2;
+}
+
+function getResend() {
+  if (!resendClient) {
+    const { Resend } = require('resend');
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendClient;
+}
 
 // ============================================================
 // MODELS (inline to avoid import issues)
@@ -122,22 +145,11 @@ async function getMongoConnection() {
 }
 
 // ============================================================
-// CLOUDINARY CONFIG
-// ============================================================
-const cloudinaryV2 = cloudinary.v2;
-cloudinaryV2.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-// ============================================================
 // NEWSLETTER
 // ============================================================
 async function sendNewArticleEmail(article) {
   try {
-    const ResendClient = Resend.Resend || Resend.default || Resend;
-    const resend = new ResendClient(process.env.RESEND_API_KEY);
+    const resend = getResend();
     const Subscriber = getSubscriberModel();
     const subscribers = await Subscriber.find({ status: 'active' }).lean();
     if (subscribers.length === 0) return { success: true, sent: 0 };
@@ -282,21 +294,27 @@ async function handleLogin(req, res) {
 }
 
 async function handleUpload(req, res) {
-  const { image } = req.body;
-  if (!image || !image.startsWith('data:image/')) {
-    return res.status(400).json({ success: false, message: 'Invalid image data' });
+  try {
+    const { image } = req.body;
+    if (!image || !image.startsWith('data:image/')) {
+      return res.status(400).json({ success: false, message: 'Invalid image data' });
+    }
+
+    if (!process.env.CLOUDINARY_CLOUD_NAME) {
+      return res.status(500).json({ success: false, message: 'Cloudinary not configured' });
+    }
+
+    const cloudinary = getCloudinary();
+    const result = await cloudinary.uploader.upload(image, {
+      folder: 'techtoolreviews/articles',
+      transformation: [{ width: 1200, height: 630, crop: 'fill', quality: 'auto:best' }],
+    });
+
+    return res.status(200).json({ success: true, imageUrl: result.secure_url });
+  } catch (error) {
+    console.error('[handleUpload] Error:', error);
+    return res.status(500).json({ success: false, message: 'Upload failed: ' + error.message });
   }
-
-  if (!process.env.CLOUDINARY_CLOUD_NAME) {
-    return res.status(500).json({ success: false, message: 'Cloudinary not configured' });
-  }
-
-  const result = await cloudinaryV2.uploader.upload(image, {
-    folder: 'techtoolreviews/articles',
-    transformation: [{ width: 1200, height: 630, crop: 'fill', quality: 'auto:best' }],
-  });
-
-  return res.status(200).json({ success: true, imageUrl: result.secure_url });
 }
 
 async function handleGetArticles(req, res, id) {
