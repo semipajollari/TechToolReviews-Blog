@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Routes, Route, useLocation, Link } from 'react-router-dom';
+import { Routes, Route, useLocation, Link, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import CategoryPage from './pages/CategoryPage';
@@ -10,18 +10,6 @@ import BackendDesign from './pages/BackendDesign';
 import InsiderList from './pages/InsiderList';
 import { useLanguage } from './i18n';
 import { AdminAuthProvider, AdminLogin, AdminDashboard } from './admin';
-
-// Admin Layout - No navbar/footer, full dark theme
-const AdminLayout: React.FC = () => {
-  return (
-    <AdminAuthProvider>
-      <Routes>
-        <Route path="/" element={<AdminLogin />} />
-        <Route path="/dashboard" element={<AdminDashboard />} />
-      </Routes>
-    </AdminAuthProvider>
-  );
-};
 
 // Main Site Layout
 const MainLayout: React.FC = () => {
@@ -104,16 +92,26 @@ const MainLayout: React.FC = () => {
   );
 };
 
-// Main App Component - Routes between Admin and Main layouts
+// Main App Component - Single Routes with all paths
 const App: React.FC = () => {
-  const { pathname } = useLocation();
-
-  // Check if we're on admin routes
-  if (pathname.startsWith('/admin')) {
-    return <AdminLayout />;
-  }
-
-  return <MainLayout />;
+  return (
+    <Routes>
+      {/* Admin Routes - Completely separate, no navbar/footer */}
+      <Route path="/admin" element={
+        <AdminAuthProvider>
+          <AdminLogin />
+        </AdminAuthProvider>
+      } />
+      <Route path="/admin/dashboard" element={
+        <AdminAuthProvider>
+          <AdminDashboard />
+        </AdminAuthProvider>
+      } />
+      
+      {/* Public Routes - With MainLayout */}
+      <Route path="/*" element={<MainLayout />} />
+    </Routes>
+  );
 };
 
 export default App;
