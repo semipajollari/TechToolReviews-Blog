@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useLanguage, Language } from './index';
 import { TRANSLATED_ARTICLES, TRANSLATED_CATEGORIES, TranslatedArticle, TranslatedCategory } from './articleTranslations';
 import { Article, Category } from '../types';
@@ -22,6 +22,23 @@ function getLocalizedArticle(translatedArticle: TranslatedArticle, language: Lan
   };
 }
 
+// Convert DB article to frontend Article format
+function convertDbArticle(dbArticle: any): Article {
+  return {
+    id: dbArticle.slug,
+    slug: dbArticle.slug,
+    category: dbArticle.category,
+    date: new Date(dbArticle.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+    author: dbArticle.author || 'TechToolReviews Team',
+    image: dbArticle.imageUrl,
+    title: dbArticle.title,
+    excerpt: dbArticle.description.substring(0, 200) + '...',
+    content: dbArticle.description,
+    affiliateLinks: dbArticle.affiliateLink ? [{ label: 'Get It Now', url: dbArticle.affiliateLink, position: 'top' as const }] : [],
+    merchantLogo: dbArticle.merchantLogo,
+  };
+}
+
 // Convert translated category to the standard Category format based on current language
 function getLocalizedCategory(translatedCategory: TranslatedCategory, language: Language, articles: Article[]): Category {
   const translation = translatedCategory.translations[language];
@@ -35,13 +52,27 @@ function getLocalizedCategory(translatedCategory: TranslatedCategory, language: 
   };
 }
 
-// Hook to get localized articles
+// Hook to get localized articles (static + database)
 export function useLocalizedArticles(): Article[] {
   const { language } = useLanguage();
+  const [dbArticles, setDbArticles] = useState<Article[]>([]);
+
+  useEffect(() => {
+    fetch('/api/articles')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.articles) {
+          setDbArticles(data.articles.map(convertDbArticle));
+        }
+      })
+      .catch(err => console.error('Failed to fetch articles:', err));
+  }, []);
   
   return useMemo(() => {
-    return TRANSLATED_ARTICLES.map(article => getLocalizedArticle(article, language));
-  }, [language]);
+    const staticArticles = TRANSLATED_ARTICLES.map(article => getLocalizedArticle(article, language));
+    // DB articles first (newest), then static articles
+    return [...dbArticles, ...staticArticles];
+  }, [language, dbArticles]);
 }
 
 // Hook to get localized categories
@@ -54,10 +85,10 @@ export function useLocalizedCategories(): Category[] {
   }, [language, articles]);
 }
 
-// Hook to get a single localized article by ID
+// Hook to get a single localized article by ID (slug)
 export function useLocalizedArticle(id: string): Article | undefined {
   const articles = useLocalizedArticles();
-  return useMemo(() => articles.find(a => a.id === id), [articles, id]);
+  return useMemo(() => articles.find(a => a.id === id || a.slug === id), [articles, id]);
 }
 
 // Hook to get a single localized category by slug
