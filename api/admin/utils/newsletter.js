@@ -1,7 +1,9 @@
-import { Resend } from 'resend';
+import Resend from 'resend';
 import { getSubscriberModel } from './models.js';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend - handle both default and named export
+const ResendClient = Resend.Resend || Resend.default || Resend;
+const resend = new ResendClient(process.env.RESEND_API_KEY);
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
 const FROM_EMAIL = process.env.FROM_EMAIL || 'TechToolReviews <onboarding@resend.dev>';

@@ -1,8 +1,9 @@
-import { v2 as cloudinary } from 'cloudinary';
+import cloudinary from 'cloudinary';
 import { authenticateAdmin } from '../middleware/auth.js';
 
 // Configure Cloudinary
-cloudinary.config({
+const cloudinaryV2 = cloudinary.v2;
+cloudinaryV2.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
@@ -63,7 +64,7 @@ export default async function handler(req, res) {
     }
 
     // Upload to Cloudinary
-    const result = await cloudinary.uploader.upload(image, {
+    const result = await cloudinaryV2.uploader.upload(image, {
       folder: 'techtoolreviews/articles',
       resource_type: 'image',
       transformation: [
