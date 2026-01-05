@@ -38,7 +38,10 @@ Return ONLY this JSON format, nothing else:
 
     const postData = JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 512 }
+      generationConfig: { 
+        temperature: 0.7, 
+        maxOutputTokens: 4096 
+      }
     });
 
     const result = await new Promise((resolve, reject) => {
