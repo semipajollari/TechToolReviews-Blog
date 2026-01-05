@@ -187,6 +187,9 @@ export default async function handler(req, res) {
   const { action, id } = req.query;
 
   try {
+    // Connect to database first for all actions
+    await getMongoConnection();
+
     // LOGIN - No auth required
     if (action === 'login' && req.method === 'POST') {
       return await handleLogin(req, res);
@@ -202,8 +205,6 @@ export default async function handler(req, res) {
     // ARTICLES - Auth required for all
     const authError = authenticateAdmin(req);
     if (authError) return res.status(authError.status).json(authError.body);
-
-    await getMongoConnection();
 
     if (action === 'articles') {
       if (req.method === 'GET') return await handleGetArticles(req, res, id);
@@ -229,7 +230,6 @@ async function handleLogin(req, res) {
     return res.status(400).json({ success: false, message: 'Username and password required' });
   }
 
-  await getMongoConnection();
   const Admin = getAdminModel();
 
   let admin = await Admin.findOne({ username: username.toLowerCase() }).select('+password');
