@@ -62,6 +62,7 @@ const articleSchema = new mongoose.Schema({
   description: { type: String, required: true, trim: true, maxlength: 10000 },
   imageUrl: { type: String, required: true },
   affiliateLink: { type: String, required: true },
+  merchantLogo: { type: String, default: '' },
   slug: { type: String, unique: true, lowercase: true, trim: true },
   published: { type: Boolean, default: false },
   category: { type: String, enum: ['software', 'tech-stacks', 'ai-tools', 'guides'], default: 'software' },
@@ -329,7 +330,7 @@ async function handleGetArticles(req, res, id) {
 }
 
 async function handleCreateArticle(req, res) {
-  const { title, description, imageUrl, affiliateLink, category, author, published } = req.body;
+  const { title, description, imageUrl, affiliateLink, merchantLogo, category, author, published } = req.body;
 
   if (!title || title.length < 5) return res.status(400).json({ success: false, message: 'Title must be at least 5 characters' });
   if (!description || description.length < 20) return res.status(400).json({ success: false, message: 'Description must be at least 20 characters' });
@@ -337,7 +338,7 @@ async function handleCreateArticle(req, res) {
   if (!affiliateLink) return res.status(400).json({ success: false, message: 'Affiliate link required' });
 
   const Article = getArticleModel();
-  const article = new Article({ title, description, imageUrl, affiliateLink, category, author, published });
+  const article = new Article({ title, description, imageUrl, affiliateLink, merchantLogo: merchantLogo || '', category, author, published });
   await article.save();
 
   if (published) {
@@ -357,13 +358,14 @@ async function handleUpdateArticle(req, res, id) {
   if (!existing) return res.status(404).json({ success: false, message: 'Article not found' });
 
   const wasUnpublished = !existing.published;
-  const { title, description, imageUrl, affiliateLink, category, author, published } = req.body;
+  const { title, description, imageUrl, affiliateLink, merchantLogo, category, author, published } = req.body;
 
   const update = {};
   if (title !== undefined) update.title = title;
   if (description !== undefined) update.description = description;
   if (imageUrl !== undefined) update.imageUrl = imageUrl;
   if (affiliateLink !== undefined) update.affiliateLink = affiliateLink;
+  if (merchantLogo !== undefined) update.merchantLogo = merchantLogo;
   if (category !== undefined) update.category = category;
   if (author !== undefined) update.author = author;
   if (published !== undefined) update.published = published;

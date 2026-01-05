@@ -8,10 +8,19 @@ interface Article {
   description: string;
   imageUrl: string;
   affiliateLink: string;
+  merchantLogo: string;
+  category: string;
   slug: string;
   published: boolean;
   createdAt: string;
 }
+
+const CATEGORIES = [
+  { value: 'software', label: 'Software' },
+  { value: 'tech-stacks', label: 'Tech Stacks' },
+  { value: 'ai-tools', label: 'AI Tools' },
+  { value: 'guides', label: 'Guides' },
+];
 
 const AdminDashboard: React.FC = () => {
   const { admin, token, logout, isAuthenticated, isLoading } = useAdminAuth();
@@ -23,6 +32,8 @@ const AdminDashboard: React.FC = () => {
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [affiliateLink, setAffiliateLink] = useState('');
+  const [merchantLogo, setMerchantLogo] = useState('');
+  const [category, setCategory] = useState('software');
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -149,6 +160,8 @@ const AdminDashboard: React.FC = () => {
           description: description.trim(),
           imageUrl: imageUrl.trim(),
           affiliateLink: affiliateLink.trim(),
+          merchantLogo: merchantLogo.trim(),
+          category: category,
           published: true,
         }),
       });
@@ -158,6 +171,8 @@ const AdminDashboard: React.FC = () => {
       if (data.success) {
         setSuccess('Article created successfully!');
         setTitle('');
+        setMerchantLogo('');
+        setCategory('software');
         setDescription('');
         setImageUrl('');
         setAffiliateLink('');
@@ -342,6 +357,46 @@ const AdminDashboard: React.FC = () => {
                 placeholder="https://..."
                 required
               />
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Category <span className="text-red-400">*</span>
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                {CATEGORIES.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Merchant Logo */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Merchant Logo URL
+              </label>
+              <input
+                type="url"
+                value={merchantLogo}
+                onChange={(e) => setMerchantLogo(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="https://... (optional)"
+              />
+              {merchantLogo && (
+                <img
+                  src={merchantLogo}
+                  alt="Merchant Logo Preview"
+                  className="mt-3 h-12 w-auto rounded object-contain bg-white p-1"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+              )}
             </div>
 
             {/* Submit Button */}
