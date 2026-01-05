@@ -74,7 +74,7 @@ const AdminDashboard: React.FC = () => {
   const fetchArticles = async () => {
     setLoadingArticles(true);
     try {
-      const response = await fetch('/api/admin/articles', {
+      const response = await fetch('/api/admin?action=articles', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -115,7 +115,7 @@ const AdminDashboard: React.FC = () => {
       reader.onload = async (event) => {
         const base64 = event.target?.result as string;
 
-        const response = await fetch('/api/admin/upload', {
+        const response = await fetch('/api/admin?action=upload', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -178,8 +178,8 @@ const AdminDashboard: React.FC = () => {
 
     try {
       const url = editingId
-        ? `/api/admin/articles/${editingId}`
-        : '/api/admin/articles';
+        ? `/api/admin?action=articles&id=${editingId}`
+        : '/api/admin?action=articles';
 
       const method = editingId ? 'PUT' : 'POST';
 
@@ -231,7 +231,7 @@ const AdminDashboard: React.FC = () => {
     if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
 
     try {
-      const response = await fetch(`/api/admin/articles/${id}`, {
+      const response = await fetch(`/api/admin?action=articles&id=${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -253,7 +253,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleTogglePublish = async (article: Article) => {
     try {
-      const response = await fetch(`/api/admin/articles/${article._id}`, {
+      const response = await fetch(`/api/admin?action=articles&id=${article._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
