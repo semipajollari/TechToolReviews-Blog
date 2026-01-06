@@ -1,14 +1,16 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { Resend } from 'resend';
+import crypto from 'crypto';
 
 // Lazy load heavy modules only when needed
 let cloudinaryV2 = null;
 let resendClient = null;
 
-function getCloudinary() {
+async function getCloudinary() {
   if (!cloudinaryV2) {
-    const cloudinary = require('cloudinary');
+    const cloudinary = await import('cloudinary');
     cloudinaryV2 = cloudinary.v2;
     cloudinaryV2.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -21,7 +23,6 @@ function getCloudinary() {
 
 function getResend() {
   if (!resendClient) {
-    const { Resend } = require('resend');
     resendClient = new Resend(process.env.RESEND_API_KEY);
   }
   return resendClient;
@@ -353,7 +354,7 @@ async function handleUpload(req, res) {
       return res.status(500).json({ success: false, message: 'Cloudinary not configured' });
     }
 
-    const cloudinary = getCloudinary();
+    const cloudinary = await getCloudinary();
     const result = await cloudinary.uploader.upload(image, {
       folder: 'techtoolreviews/articles',
       transformation: [{ width: 1200, height: 630, crop: 'fill', quality: 'auto:best' }],
@@ -597,7 +598,6 @@ async function handleResendVerification(req, res, id) {
     }
 
     // Generate new token
-    const crypto = await import('crypto');
     subscriber.verificationToken = crypto.randomBytes(32).toString('hex');
     subscriber.tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await subscriber.save();
