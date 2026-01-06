@@ -85,9 +85,9 @@ async function sendEmail(to, subject, html) {
     return false;
   }
 
-  // Use custom domain email for production
-  const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
-  const replyTo = process.env.ADMIN_EMAIL || 'semipajo2003@gmail.com';
+  // Use Resend's sender, but replies go to your Gmail
+  const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <onboarding@resend.dev>';
+  const replyTo = process.env.REPLY_TO || 'techtoolreview.co@gmail.com';
 
   try {
     const response = await fetch('https://api.resend.com/emails', {

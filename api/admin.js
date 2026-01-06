@@ -259,6 +259,16 @@ export default async function handler(req, res) {
       if (req.method === 'POST') return await handleVerifySubscriber(req, res, id);
     }
     
+    // RESEND VERIFICATION EMAIL - Auth required
+    if (action === 'resend-verification' && id) {
+      if (req.method === 'POST') return await handleResendVerification(req, res, id);
+    }
+    
+    // SEND WEEKLY RECAP - Auth required
+    if (action === 'weekly-recap') {
+      if (req.method === 'POST') return await handleSendWeeklyRecap(req, res);
+    }
+    
     // STATS
     if (action === 'stats') {
       return await handleGetStats(req, res);
@@ -478,7 +488,7 @@ async function handleSendNewsletter(req, res) {
     
     const resend = getResend();
     const Subscriber = getSubscriberModel();
-    const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
+    const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <onboarding@resend.dev>';
     
     // If test mode, send only to admin
     if (test) {
@@ -567,6 +577,215 @@ async function handleVerifySubscriber(req, res, id) {
     console.error('Failed to verify subscriber:', error);
     return res.status(500).json({ success: false, message: error.message });
   }
+}
+
+async function handleResendVerification(req, res, id) {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid subscriber ID' });
+    }
+
+    const Subscriber = getSubscriberModel();
+    const subscriber = await Subscriber.findById(id);
+    
+    if (!subscriber) {
+      return res.status(404).json({ success: false, message: 'Subscriber not found' });
+    }
+
+    if (subscriber.status === 'active') {
+      return res.status(400).json({ success: false, message: 'Subscriber already verified' });
+    }
+
+    // Generate new token
+    const crypto = await import('crypto');
+    subscriber.verificationToken = crypto.randomBytes(32).toString('hex');
+    subscriber.tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await subscriber.save();
+
+    // Send verification email
+    const resend = getResend();
+    const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <onboarding@resend.dev>';
+    const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
+    const verifyUrl = `${baseUrl}/api/verify?token=${subscriber.verificationToken}`;
+
+    await resend.emails.send({
+      from: fromEmail,
+      to: subscriber.email,
+      subject: 'Verify your TechToolReviews subscription',
+      html: getVerificationEmailHtml(verifyUrl)
+    });
+
+    console.log('[Admin] Verification email resent to:', subscriber.email);
+    return res.status(200).json({ success: true, message: 'Verification email sent' });
+  } catch (error) {
+    console.error('Failed to resend verification:', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+function getVerificationEmailHtml(verifyUrl) {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="display: inline-block; background: #6366f1; padding: 12px 16px; border-radius: 12px;">
+          <span style="color: white; font-size: 24px;">⚡</span>
+        </div>
+        <h1 style="color: #18181b; margin: 20px 0 0; font-size: 24px;">TechToolReviews</h1>
+      </div>
+      
+      <h2 style="color: #18181b; margin: 0 0 16px; font-size: 20px;">Verify your email</h2>
+      <p style="color: #52525b; line-height: 1.6; margin: 0 0 24px;">
+        Thanks for subscribing! Click the button below to confirm your email and start receiving our weekly tech reviews and guides.
+      </p>
+      
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${verifyUrl}" style="display: inline-block; background: #6366f1; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+          Verify Email
+        </a>
+      </div>
+      
+      <p style="color: #71717a; font-size: 14px; line-height: 1.6;">
+        This link expires in 24 hours. If you didn't subscribe, you can safely ignore this email.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid #e4e4e7; margin: 32px 0;">
+      
+      <p style="color: #a1a1aa; font-size: 12px; text-align: center; margin: 0;">
+        © 2026 TechToolReviews. All rights reserved.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+async function handleSendWeeklyRecap(req, res) {
+  try {
+    const Article = getArticleModel();
+    const Subscriber = getSubscriberModel();
+    const resend = getResend();
+
+    // Get articles from last 7 days
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const articles = await Article.find({
+      published: true,
+      createdAt: { $gte: oneWeekAgo }
+    })
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .lean();
+
+    if (articles.length === 0) {
+      return res.status(200).json({ success: true, message: 'No articles published this week', sent: 0 });
+    }
+
+    // Get active subscribers
+    const subscribers = await Subscriber.find({ status: 'active' }).lean();
+    if (subscribers.length === 0) {
+      return res.status(200).json({ success: true, message: 'No active subscribers', sent: 0 });
+    }
+
+    const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <onboarding@resend.dev>';
+    const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
+
+    // Send in batches
+    const BATCH_SIZE = 100;
+    let totalSent = 0;
+
+    for (let i = 0; i < subscribers.length; i += BATCH_SIZE) {
+      const batch = subscribers.slice(i, i + BATCH_SIZE);
+      
+      const emails = batch.map(sub => ({
+        from: fromEmail,
+        to: sub.email,
+        subject: '⚡ This Week in Tech - TechToolReviews',
+        html: getWeeklyRecapHtml(articles, sub.unsubscribeToken, baseUrl),
+        headers: {
+          'List-Unsubscribe': `<${baseUrl}/api/unsubscribe?token=${sub.unsubscribeToken || ''}>`
+        }
+      }));
+
+      try {
+        await resend.batch.send(emails);
+        totalSent += batch.length;
+        console.log(`[Weekly Recap] Batch sent: ${batch.length} emails`);
+      } catch (err) {
+        console.error('[Weekly Recap] Batch error:', err);
+      }
+    }
+
+    return res.status(200).json({ 
+      success: true, 
+      message: `Weekly recap sent to ${totalSent} subscribers`,
+      sent: totalSent,
+      articles: articles.length
+    });
+  } catch (error) {
+    console.error('[Weekly Recap] Error:', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+function getWeeklyRecapHtml(articles, unsubscribeToken, baseUrl) {
+  const unsubscribeUrl = `${baseUrl}/api/unsubscribe?token=${unsubscribeToken || ''}`;
+  
+  const articlesHtml = articles.map(article => `
+    <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+      <img src="${article.imageUrl}" alt="${article.title}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 16px;">
+      <h3 style="color: #18181b; margin: 0 0 12px; font-size: 18px;">${article.title}</h3>
+      <p style="color: #52525b; line-height: 1.6; margin: 0 0 16px;">
+        ${article.description.substring(0, 150)}...
+      </p>
+      <a href="${baseUrl}/article/${article.slug}" style="display: inline-block; background: #6366f1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">
+        Read Article →
+      </a>
+    </div>
+  `).join('');
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="display: inline-block; background: #6366f1; padding: 12px 16px; border-radius: 12px;">
+          <span style="color: white; font-size: 24px;">⚡</span>
+        </div>
+        <h1 style="color: #18181b; margin: 20px 0 0; font-size: 24px;">This Week in Tech</h1>
+      </div>
+      
+      <p style="color: #52525b; line-height: 1.6; margin: 0 0 30px; text-align: center;">
+        Here are the latest articles from TechToolReviews this week.
+      </p>
+      
+      ${articlesHtml}
+      
+      <hr style="border: none; border-top: 1px solid #e4e4e7; margin: 32px 0;">
+      
+      <p style="color: #71717a; font-size: 12px; text-align: center; margin: 0 0 8px;">
+        You're receiving this because you subscribed to TechToolReviews.
+      </p>
+      <p style="color: #a1a1aa; font-size: 12px; text-align: center; margin: 0;">
+        <a href="${unsubscribeUrl}" style="color: #6366f1; text-decoration: none;">Unsubscribe</a> | 
+        <a href="${baseUrl}" style="color: #6366f1; text-decoration: none;">Visit Website</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
 }
 async function handleGetStats(req, res) {
   try {

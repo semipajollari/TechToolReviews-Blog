@@ -64,6 +64,7 @@ const AdminDashboard: React.FC = () => {
   const [newsletterContent, setNewsletterContent] = useState('');
   const [sendingNewsletter, setSendingNewsletter] = useState(false);
   const [testEmail, setTestEmail] = useState(false);
+  const [sendingWeeklyRecap, setSendingWeeklyRecap] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -130,6 +131,50 @@ const AdminDashboard: React.FC = () => {
       }
     } catch (err) {
       setError('Network error verifying subscriber');
+    }
+  };
+
+  const resendVerification = async (subscriberId: string) => {
+    if (!confirm('Resend verification email to this subscriber?')) return;
+    
+    try {
+      const response = await fetch(`/api/admin?action=resend-verification&id=${subscriberId}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSuccess('Verification email sent!');
+      } else {
+        setError(data.message || 'Failed to send verification email');
+      }
+    } catch (err) {
+      setError('Network error sending verification email');
+    }
+  };
+
+  const sendWeeklyRecap = async () => {
+    if (!confirm('Send weekly recap of latest articles to ALL active subscribers?')) return;
+    
+    setSendingWeeklyRecap(true);
+    setError('');
+    setSuccess('');
+    
+    try {
+      const response = await fetch('/api/admin?action=weekly-recap', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSuccess(data.message || 'Weekly recap sent!');
+      } else {
+        setError(data.message || 'Failed to send weekly recap');
+      }
+    } catch (err) {
+      setError('Network error sending weekly recap');
+    } finally {
+      setSendingWeeklyRecap(false);
     }
   };
 
@@ -462,6 +507,33 @@ const AdminDashboard: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column: Stats & List */}
             <div className="lg:col-span-2 space-y-8">
+              {/* Weekly Recap Button */}
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold mb-1">📧 Weekly Newsletter</h3>
+                    <p className="text-indigo-100 text-sm">Send a recap of this week's articles to all active subscribers</p>
+                  </div>
+                  <button
+                    onClick={sendWeeklyRecap}
+                    disabled={sendingWeeklyRecap}
+                    className="px-6 py-3 bg-white text-indigo-600 font-bold rounded-lg hover:bg-indigo-50 disabled:opacity-50 transition-all flex items-center space-x-2 whitespace-nowrap"
+                  >
+                    {sendingWeeklyRecap ? (
+                      <>
+                        <i className="fas fa-circle-notch fa-spin"></i>
+                        <span>Sending...</span>
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-paper-plane"></i>
+                        <span>Send Now</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
               {/* Stats Card */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
@@ -518,12 +590,22 @@ const AdminDashboard: React.FC = () => {
                             </td>
                             <td className="px-6 py-4 text-sm">
                               {sub.status === 'pending' && (
-                                <button
-                                  onClick={() => verifySubscriber(sub._id)}
-                                  className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded-lg transition-colors"
-                                >
-                                  Verify
-                                </button>
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={() => verifySubscriber(sub._id)}
+                                    className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition-colors"
+                                    title="Manually verify (skip email)"
+                                  >
+                                    ✓ Verify
+                                  </button>
+                                  <button
+                                    onClick={() => resendVerification(sub._id)}
+                                    className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded-lg transition-colors"
+                                    title="Send verification email"
+                                  >
+                                    📧 Send Email
+                                  </button>
+                                </div>
                               )}
                             </td>
                           </tr>
