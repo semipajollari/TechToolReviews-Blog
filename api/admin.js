@@ -306,7 +306,7 @@ async function handleLogin(req, res) {
       console.log('[handleLogin] Creating default admin');
       admin = new Admin({
         username: 'admin',
-        password: process.env.ADMIN_PASSWORD || 'TechTool@2026!',
+        password: process.env.ADMIN_PASSWORD || 'admin',
         email: process.env.ADMIN_EMAIL || 'admin@techtoolreviews.co',
         role: 'superadmin',
       });
