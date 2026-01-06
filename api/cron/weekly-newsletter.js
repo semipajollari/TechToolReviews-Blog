@@ -51,6 +51,10 @@ async function sendEmail(to, subject, html) {
     return false;
   }
 
+  // Use custom domain email for production
+  const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
+  const replyTo = process.env.ADMIN_EMAIL || 'semipajo2003@gmail.com';
+
   try {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -59,8 +63,8 @@ async function sendEmail(to, subject, html) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'TechToolReviews <onboarding@resend.dev>',
-        reply_to: 'techtoolreviews.co@gmail.com',
+        from: fromEmail,
+        reply_to: replyTo,
         to: [to],
         subject,
         html,
@@ -78,7 +82,7 @@ async function sendEmail(to, subject, html) {
  * Generate newsletter HTML
  */
 function getNewsletterHtml(unsubscribeUrl) {
-  const baseUrl = process.env.FRONTEND_URL || 'https://tech-tool-reviews-blog.vercel.app';
+  const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
   
   return `
 <!DOCTYPE html>
@@ -168,7 +172,7 @@ export default async function handler(req, res) {
 
     console.log(`[Newsletter] Sending to ${subscribers.length} subscribers`);
 
-    const baseUrl = process.env.FRONTEND_URL || 'https://tech-tool-reviews-blog.vercel.app';
+    const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
     let sent = 0;
     let failed = 0;
 

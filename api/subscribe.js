@@ -85,6 +85,10 @@ async function sendEmail(to, subject, html) {
     return false;
   }
 
+  // Use custom domain email for production
+  const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
+  const replyTo = process.env.ADMIN_EMAIL || 'semipajo2003@gmail.com';
+
   try {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -93,8 +97,8 @@ async function sendEmail(to, subject, html) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'TechToolReviews <onboarding@resend.dev>',
-        reply_to: 'techtoolreviews.co@gmail.com',
+        from: fromEmail,
+        reply_to: replyTo,
         to: [to],
         subject,
         html,
@@ -214,7 +218,7 @@ export default async function handler(req, res) {
       await existing.save();
 
       // Send verification email
-      const baseUrl = process.env.FRONTEND_URL || 'https://tech-tool-reviews-blog.vercel.app';
+      const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
       const verifyUrl = `${baseUrl}/api/verify?token=${existing.verificationToken}`;
       const emailSent = await sendEmail(emailLower, 'Verify your TechToolReviews subscription', getVerificationEmailHtml(verifyUrl));
       console.log('[Subscribe] Email sent:', emailSent);

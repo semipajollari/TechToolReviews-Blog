@@ -86,7 +86,7 @@ function getArticleModel() {
 }
 
 // Subscriber Schema
-// Matching api/subscribers.js to avoid schema conflict
+// Matching api/subscribe.js to avoid schema conflict
 const subscriberSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -95,12 +95,11 @@ const subscriberSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
   },
-  preferences: {
-    frequency: { type: String, default: 'weekly' },
-    categories: [String],
+  status: {
+    type: String,
+    enum: ['pending', 'active', 'unsubscribed'],
+    default: 'pending',
   },
-  isActive: { type: Boolean, default: true },
-  isVerified: { type: Boolean, default: false },
   verificationToken: String,
   tokenExpiresAt: Date,
   unsubscribeToken: String,
@@ -253,6 +252,11 @@ export default async function handler(req, res) {
     // NEWSLETTER - Auth required
     if (action === 'newsletter') {
       if (req.method === 'POST') return await handleSendNewsletter(req, res);
+    }
+    
+    // VERIFY SUBSCRIBER - Auth required
+    if (action === 'verify-subscriber' && id) {
+      if (req.method === 'POST') return await handleVerifySubscriber(req, res, id);
     }
     
     // STATS
@@ -442,7 +446,8 @@ async function handleGetSubscribers(req, res) {
     const Subscriber = getSubscriberModel();
     // Get stats
     const total = await Subscriber.countDocuments();
-    const verified = await Subscriber.countDocuments({ isVerified: true });
+    const active = await Subscriber.countDocuments({ status: 'active' });
+    const pending = await Subscriber.countDocuments({ status: 'pending' });
     
     // Get list (limit 500 for now)
     const subscribers = await Subscriber.find()
@@ -450,7 +455,7 @@ async function handleGetSubscribers(req, res) {
       .limit(500)
       .lean();
       
-    return res.status(200).json({ success: true, subscribers, stats: { total, verified } });
+    return res.status(200).json({ success: true, subscribers, stats: { total, active, pending } });
   } catch (error) {
     console.error('Failed to get subscribers:', error);
     return res.status(500).json({ success: false, message: error.message });
@@ -473,12 +478,13 @@ async function handleSendNewsletter(req, res) {
     
     const resend = getResend();
     const Subscriber = getSubscriberModel();
+    const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
     
     // If test mode, send only to admin
     if (test) {
-      const adminEmail = req.admin.email || process.env.ADMIN_EMAIL || 'techtoolreviews.co@gmail.com';
+      const adminEmail = req.admin.email || process.env.ADMIN_EMAIL || 'semipajo2003@gmail.com';
       await resend.emails.send({
-        from: 'TechToolReviews <onboarding@resend.dev>',
+        from: fromEmail,
         to: adminEmail,
         subject: `[TEST] ${subject}`,
         html: content
@@ -486,39 +492,49 @@ async function handleSendNewsletter(req, res) {
       return res.status(200).json({ success: true, message: `Test email sent to ${adminEmail}`, sent: 1 });
     }
     
-    // Process bulk send
-    const subscribers = await Subscriber.find({ isActive: true }).lean();
+    // Process bulk send using Resend batch API (100 emails per batch)
+    const subscribers = await Subscriber.find({ status: 'active' }).lean();
     if (subscribers.length === 0) {
-      return res.status(200).json({ success: true, message: 'No verified subscribers found', sent: 0 });
+      return res.status(200).json({ success: true, message: 'No active subscribers found', sent: 0 });
     }
     
-    let sentCount = 0;
+    const BATCH_SIZE = 100; // Resend's max batch size
+    let totalSent = 0;
     const errors = [];
-    const MAX_SEND = 50; // Safety limit
     
-    for (const sub of subscribers.slice(0, MAX_SEND)) {
+    // Split subscribers into batches of 100
+    for (let i = 0; i < subscribers.length; i += BATCH_SIZE) {
+      const batch = subscribers.slice(i, i + BATCH_SIZE);
+      
       try {
-        await resend.emails.send({
-          from: 'TechToolReviews <onboarding@resend.dev>',
+        // Prepare batch payload
+        const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
+        const emails = batch.map(sub => ({
+          from: fromEmail,
           to: sub.email,
           subject: subject,
           html: content,
           headers: {
-            'List-Unsubscribe': `<https://techtoolreviews.co/unsubscribe?token=${sub.unsubscribeToken || ''}>`
+            'List-Unsubscribe': `<${baseUrl}/api/unsubscribe?token=${sub.unsubscribeToken || ''}>`
           }
-        });
-        sentCount++;
+        }));
+        
+        // Send batch
+        const result = await resend.batch.send(emails);
+        totalSent += batch.length;
+        console.log(`[Newsletter] Batch ${Math.floor(i / BATCH_SIZE) + 1} sent: ${batch.length} emails`);
       } catch (err) {
-        errors.push({ email: sub.email, error: err.message });
+        console.error('[Newsletter] Batch error:', err);
+        errors.push({ batch: Math.floor(i / BATCH_SIZE) + 1, count: batch.length, error: err.message });
       }
     }
     
     return res.status(200).json({ 
       success: true, 
-      sent: sentCount, 
+      sent: totalSent, 
       total: subscribers.length,
-      limitReached: subscribers.length > MAX_SEND,
-      errors 
+      batches: Math.ceil(subscribers.length / BATCH_SIZE),
+      errors: errors.length > 0 ? errors : undefined
     });
     
   } catch (error) {
@@ -526,14 +542,39 @@ async function handleSendNewsletter(req, res) {
     return res.status(500).json({ success: false, message: error.message });
   }
 }
+async function handleVerifySubscriber(req, res, id) {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid subscriber ID' });
+    }
 
+    const Subscriber = getSubscriberModel();
+    const subscriber = await Subscriber.findById(id);
+    
+    if (!subscriber) {
+      return res.status(404).json({ success: false, message: 'Subscriber not found' });
+    }
+
+    subscriber.status = 'active';
+    subscriber.verifiedAt = new Date();
+    subscriber.verificationToken = undefined;
+    subscriber.tokenExpiresAt = undefined;
+    await subscriber.save();
+
+    console.log('[Admin] Manually verified subscriber:', subscriber.email);
+    return res.status(200).json({ success: true, message: 'Subscriber verified', subscriber });
+  } catch (error) {
+    console.error('Failed to verify subscriber:', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
 async function handleGetStats(req, res) {
   try {
     const Subscriber = getSubscriberModel();
     const Article = getArticleModel();
     
     const [subscriberCount, articleCount] = await Promise.all([
-      Subscriber.countDocuments({ isActive: true }),
+      Subscriber.countDocuments({ status: 'active' }),
       Article.countDocuments()
     ]);
     

@@ -113,6 +113,26 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const verifySubscriber = async (subscriberId: string) => {
+    if (!confirm('Manually verify this subscriber?')) return;
+    
+    try {
+      const response = await fetch(`/api/admin?action=verify-subscriber&id=${subscriberId}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSuccess('Subscriber verified!');
+        fetchSubscribers(); // Refresh list
+      } else {
+        setError(data.message || 'Failed to verify subscriber');
+      }
+    } catch (err) {
+      setError('Network error verifying subscriber');
+    }
+  };
+
   const handleSendNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!confirm(testEmail ? 'Send TEST email to yourself?' : 'Send this to ALL verified subscribers? This cannot be undone.')) return;
@@ -449,8 +469,12 @@ const AdminDashboard: React.FC = () => {
                    <p className="text-3xl font-black text-white">{stats?.total || 0}</p>
                 </div>
                 <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
-                   <p className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">Verified</p>
-                   <p className="text-3xl font-black text-indigo-400">{stats?.verified || 0}</p>
+                   <p className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">Active</p>
+                   <p className="text-3xl font-black text-indigo-400">{stats?.active || 0}</p>
+                </div>
+                <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
+                   <p className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">Pending</p>
+                   <p className="text-3xl font-black text-yellow-400">{stats?.pending || 0}</p>
                 </div>
               </div>
 
@@ -473,6 +497,7 @@ const AdminDashboard: React.FC = () => {
                           <th className="px-6 py-3 text-xs font-medium text-gray-400 uppercase">Email</th>
                           <th className="px-6 py-3 text-xs font-medium text-gray-400 uppercase">Status</th>
                           <th className="px-6 py-3 text-xs font-medium text-gray-400 uppercase">Joined</th>
+                          <th className="px-6 py-3 text-xs font-medium text-gray-400 uppercase">Action</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-700">
@@ -480,14 +505,26 @@ const AdminDashboard: React.FC = () => {
                           <tr key={sub._id || i} className="hover:bg-gray-750">
                             <td className="px-6 py-4 text-sm text-white font-medium">{sub.email}</td>
                             <td className="px-6 py-4 text-sm">
-                              {sub.isVerified ? (
-                                <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded-full text-xs">Verified</span>
-                              ) : (
+                              {sub.status === 'active' ? (
+                                <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded-full text-xs">Active</span>
+                              ) : sub.status === 'pending' ? (
                                 <span className="px-2 py-1 bg-yellow-900/30 text-yellow-400 rounded-full text-xs">Pending</span>
+                              ) : (
+                                <span className="px-2 py-1 bg-gray-900/30 text-gray-400 rounded-full text-xs">Unsubscribed</span>
                               )}
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-400">
                               {new Date(sub.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              {sub.status === 'pending' && (
+                                <button
+                                  onClick={() => verifySubscriber(sub._id)}
+                                  className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded-lg transition-colors"
+                                >
+                                  Verify
+                                </button>
+                              )}
                             </td>
                           </tr>
                         ))}
