@@ -239,8 +239,7 @@ export default async function handler(req, res) {
               </head>
               <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
                 <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                  <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 40px 30px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 900;">Welcome to the Insider List! 🎉</h1>
+                  <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 40px 30px; text-align: center;">                  <img src="https://techtoolreviews.co/favicon.svg" alt="TechToolReviews" width="64" height="64" style="display: inline-block; margin-bottom: 16px;">                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 900;">Welcome to the Insider List! 🎉</h1>
                   </div>
                   <div style="padding: 40px 30px; color: #374151;">
                     <p style="font-size: 18px; line-height: 1.6; margin: 0 0 20px 0;">Hey there!</p>

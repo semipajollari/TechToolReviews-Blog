@@ -145,6 +145,7 @@ function getVerificationEmailHtml(verifyUrl) {
           <!-- Header -->
           <tr>
             <td style="background-color: #6366f1; padding: 32px; text-align: center;">
+              <img src="https://techtoolreviews.co/favicon.svg" alt="TechToolReviews" width="48" height="48" style="display: inline-block; margin-bottom: 12px;">
               <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">TechToolReviews</h1>
             </td>
           </tr>

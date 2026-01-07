@@ -96,7 +96,7 @@ function getNewsletterHtml(unsubscribeUrl) {
     <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
       <div style="text-align: center; margin-bottom: 30px;">
         <div style="display: inline-block; background: #6366f1; padding: 12px 16px; border-radius: 12px;">
-          <span style="color: white; font-size: 24px;">⚡</span>
+          <img src="https://techtoolreviews.co/favicon.svg" alt="TechToolReviews" width="24" height="24" style="display: inline-block;">
         </div>
         <h1 style="color: #18181b; margin: 20px 0 0; font-size: 24px;">TechToolReviews Weekly</h1>
       </div>
