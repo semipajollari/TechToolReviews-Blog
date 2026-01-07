@@ -208,7 +208,7 @@ export default async function handler(req, res) {
     // Already verified
     if (subscriber.status === 'active') {
       const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
-      const redirectUrl = `${baseUrl}/insider-list?verified=true&email=${encodeURIComponent(subscriber.email)}`;
+      const redirectUrl = `${baseUrl}/?verified=true&email=${encodeURIComponent(subscriber.email)}`;
       
       res.setHeader('Content-Type', 'text/html');
       return res.status(200).send(`
@@ -239,9 +239,9 @@ export default async function handler(req, res) {
 
     console.log('[Verify] ✅ Email verified:', subscriber.email);
 
-    // Instant redirect to main domain success page
+    // Instant redirect to home page with success message
     const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
-    const redirectUrl = `${baseUrl}/insider-list?verified=true&email=${encodeURIComponent(subscriber.email)}`;
+    const redirectUrl = `${baseUrl}/?verified=true&email=${encodeURIComponent(subscriber.email)}`;
     
     res.setHeader('Content-Type', 'text/html');
     return res.status(200).send(`

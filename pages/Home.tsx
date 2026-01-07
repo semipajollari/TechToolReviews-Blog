@@ -1,6 +1,5 @@
-
-import React, { useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { BRAND_NAME } from '../constants';
 import ArticleCard from '../components/ArticleCard';
 import TechStackAdvisor from '../components/TechStackAdvisor';
@@ -15,9 +14,30 @@ const Home: React.FC = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [verifiedEmail, setVerifiedEmail] = useState('');
   const isSubmitting = useRef(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useLanguage();
+
+  // Check for verification success from URL params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const verified = params.get('verified') === 'true';
+    const emailParam = params.get('email');
+    
+    if (verified && emailParam) {
+      setShowSuccess(true);
+      setVerifiedEmail(emailParam);
+      
+      // Clear URL params after 5 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+        window.history.replaceState({}, '', '/');
+      }, 5000);
+    }
+  }, [location]);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +86,27 @@ const Home: React.FC = () => {
 
   return (
     <div className="bg-white dark:bg-gray-950 transition-colors">
+      {/* Success Message Banner */}
+      {showSuccess && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-slide-down">
+          <div className="bg-green-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center space-x-4">
+            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+              <i className="fas fa-check text-xl"></i>
+            </div>
+            <div>
+              <p className="font-bold text-lg">Email Verified Successfully!</p>
+              <p className="text-sm opacity-90">{verifiedEmail}</p>
+            </div>
+            <button 
+              onClick={() => setShowSuccess(false)}
+              className="ml-4 w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-full transition"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Immersive Hero */}
       <section className="relative min-h-[95vh] flex items-center pt-24 overflow-hidden hero-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20 w-full">
