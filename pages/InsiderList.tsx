@@ -117,6 +117,19 @@ const InsiderList: React.FC = () => {
         <p className="text-sm text-gray-500 dark:text-gray-500 mt-12 font-medium">
           Can't find the email? Check your spam folder or <a href="mailto:techtoolreview@gmail.com" className="text-indigo-600 hover:underline">contact support</a>
         </p>
+
+        {/* Unsubscribe Section */}
+        <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
+          <p className="text-sm text-gray-400 dark:text-gray-600 mb-3">
+            Want to unsubscribe? You can do so at any time.
+          </p>
+          <Link
+            to="/unsubscribe"
+            className="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-500 dark:hover:text-indigo-400 underline transition-colors"
+          >
+            Manage subscription preferences
+          </Link>
+        </div>
       </div>
     </div>
   );

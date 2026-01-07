@@ -11,6 +11,7 @@ import BackendDesign from './pages/BackendDesign';
 import InsiderList from './pages/InsiderList';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import Unsubscribe from './pages/Unsubscribe';
 import { useLanguage } from './i18n';
 import { AdminAuthProvider, AdminLogin, AdminDashboard } from './admin';
 
@@ -37,6 +38,7 @@ const MainLayout: React.FC = () => {
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/unsubscribe" element={<Unsubscribe />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>
@@ -95,6 +97,7 @@ const MainLayout: React.FC = () => {
                 <li><Link to="/architecture" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{t.nav.architecture}</Link></li>
                 <li><Link to="/privacy" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{t.footer.privacy}</Link></li>
                 <li><Link to="/terms" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{t.footer.terms}</Link></li>
+                <li><Link to="/insider-list" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Newsletter</Link></li>
               </ul>
             </div>
           </div>
