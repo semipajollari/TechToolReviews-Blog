@@ -207,8 +207,8 @@ export default async function handler(req, res) {
 
     // Already verified
     if (subscriber.status === 'active') {
-      res.setHeader('Content-Type', 'text/html');
-      return res.status(200).send(getSuccessHtml('Already Verified', 'Your email is already verified. You\'re all set!'));
+      const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
+      return res.redirect(302, `${baseUrl}/insider-list?verified=true&email=${encodeURIComponent(subscriber.email)}`);
     }
 
     // Verify the subscriber
@@ -220,8 +220,9 @@ export default async function handler(req, res) {
 
     console.log('[Verify] ✅ Email verified:', subscriber.email);
 
-    res.setHeader('Content-Type', 'text/html');
-    return res.status(200).send(getSuccessHtml('Email Verified!', 'You\'re now subscribed to TechToolReviews. We\'ll send you the best tech reviews and guides every week.'));
+    // Redirect to main domain success page
+    const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
+    return res.redirect(302, `${baseUrl}/insider-list?verified=true&email=${encodeURIComponent(subscriber.email)}`);
 
   } catch (error) {
     console.error('[Verify] ❌ Error:', error.message);

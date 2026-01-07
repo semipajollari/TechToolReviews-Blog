@@ -4,6 +4,16 @@ import { useLocation, Link } from 'react-router-dom';
 const InsiderList: React.FC = () => {
   const location = useLocation();
   const state = location.state as { email?: string; message?: string } || {};
+  
+  // Check for URL params (from email verification redirect)
+  const params = new URLSearchParams(location.search);
+  const verified = params.get('verified') === 'true';
+  const emailParam = params.get('email');
+  
+  const displayEmail = state.email || emailParam;
+  const displayMessage = verified 
+    ? 'Email verified! You\'re now subscribed to TechToolReviews.' 
+    : (state.message || 'You\'ve successfully joined our exclusive community of 125,000+ developers and founders.');
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 flex items-center justify-center px-4 py-24">
@@ -22,14 +32,14 @@ const InsiderList: React.FC = () => {
 
         {/* Message */}
         <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 font-medium leading-relaxed">
-          {state.message || 'You\'ve successfully joined our exclusive community of 125,000+ developers and founders.'}
+          {displayMessage}
         </p>
 
         {/* Email Display */}
-        {state.email && (
+        {displayEmail && (
           <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-6 mb-10">
             <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-2">Subscription email:</p>
-            <p className="text-lg font-bold text-gray-900 dark:text-white">{state.email}</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">{displayEmail}</p>
           </div>
         )}
 
