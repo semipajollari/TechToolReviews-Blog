@@ -181,11 +181,26 @@ export default async function handler(req, res) {
         }
       }
 
+      // Simple rate limiting - check for recent subscriptions from same IP (if available)
+      const clientIp = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown';
+      const recentCount = await Subscriber.countDocuments({
+        createdAt: { $gte: new Date(Date.now() - 60000) } // Last 1 minute
+      });
+      
+      if (recentCount > 10) {
+        console.log('[Subscribers] ⚠️ Rate limit triggered');
+        return res.status(429).json({
+          success: false,
+          message: 'Too many subscription requests. Please try again in a minute.',
+        });
+      }
+
       // Create new subscriber
       console.log('[Subscribers] 🆕 Creating new subscriber...');
       const newSubscriber = new Subscriber({
         email: emailLower,
         verificationToken: crypto.randomBytes(32).toString('hex'),
+        unsubscribeToken: crypto.randomBytes(32).toString('hex'),
         preferences: preferences || {
           frequency: 'weekly',
           categories: [],
@@ -202,32 +217,62 @@ export default async function handler(req, res) {
       if (process.env.RESEND_API_KEY) {
         try {
           const resend = new Resend(process.env.RESEND_API_KEY);
+          const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
+          const replyTo = 'techtoolreview@gmail.com';
+          const frontendUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
+          
           await resend.emails.send({
-            from: 'TechToolReviews <onboarding@resend.dev>',
+            from: fromEmail,
             to: newSubscriber.email,
-            subject: 'Welcome to the Insider List!',
+            replyTo: replyTo,
+            subject: 'Welcome to TechToolReviews Insider List! 🚀',
             html: `
-              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-                <h1 style="color: #4f46e5;">Welcome to the Inner Circle! 🚀</h1>
-                <p>Thanks for joining TechToolReviews. You're now on the list for exclusive tech stack breakdowns and tool reviews.</p>
-                <p>Here is what you can expect:</p>
-                <ul>
-                  <li>Weekly analysis of high-growth tech stacks</li>
-                  <li>Unbiased reviews of new developer tools</li>
-                  <li>AI implementation guides</li>
-                </ul>
-                <p style="margin-top: 30px;">
-                  <a href="https://techtoolreviews.co/category/guides" style="background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Browse Latest Guides</a>
-                </p>
-                <p style="font-size: 12px; color: #888; margin-top: 40px;">
-                  You can <a href="https://techtoolreviews.co/unsubscribe?token=${newSubscriber.unsubscribeToken || ''}" style="color: #888;">unsubscribe</a> at any time.
-                </p>
-              </div>
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              </head>
+              <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+                <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                  <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 40px 30px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 900;">Welcome to the Insider List! 🎉</h1>
+                  </div>
+                  <div style="padding: 40px 30px; color: #374151;">
+                    <p style="font-size: 18px; line-height: 1.6; margin: 0 0 20px 0;">Hey there!</p>
+                    <p style="font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                      Thanks for joining <strong>TechToolReviews</strong>! You're now part of an exclusive community of 125,000+ developers and founders.
+                    </p>
+                    <div style="background-color: #f9fafb; border-left: 4px solid #4f46e5; padding: 20px; margin: 30px 0; border-radius: 8px;">
+                      <h2 style="color: #1f2937; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;">What You'll Get:</h2>
+                      <ul style="margin: 0; padding-left: 20px; color: #4b5563;">
+                        <li style="margin-bottom: 10px;">📊 Weekly analysis of high-growth tech stacks</li>
+                        <li style="margin-bottom: 10px;">⚙️ Unbiased, in-depth developer tool reviews</li>
+                        <li style="margin-bottom: 10px;">🤖 AI implementation guides and best practices</li>
+                        <li style="margin-bottom: 10px;">🚀 Early access to new features and content</li>
+                      </ul>
+                    </div>
+                    <div style="text-align: center; margin: 40px 0;">
+                      <a href="${frontendUrl}" style="display: inline-block; background-color: #4f46e5; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 12px; font-weight: 700; font-size: 16px;">Browse Latest Guides</a>
+                    </div>
+                    <p style="font-size: 14px; line-height: 1.6; color: #6b7280; margin: 30px 0 0 0;">
+                      Questions? Just reply to this email - we read every message.
+                    </p>
+                  </div>
+                  <div style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                    <p style="font-size: 12px; color: #9ca3af; margin: 0;">
+                      You can <a href="${frontendUrl}/unsubscribe?token=${newSubscriber.unsubscribeToken || ''}" style="color: #6b7280; text-decoration: underline;">unsubscribe</a> at any time.
+                    </p>
+                  </div>
+                </div>
+              </body>
+              </html>
             `
           });
-          console.log('[Subscribers] 📧 Welcome email sent');
+          console.log('[Subscribers] 📧 Welcome email sent successfully');
         } catch (emailError) {
           console.error('[Subscribers] ❌ Failed to send welcome email:', emailError.message);
+          // Don't fail the subscription if email fails
         }
       } else {
         console.log('[Subscribers] ⚠️ RESEND_API_KEY missing - skipping welcome email');

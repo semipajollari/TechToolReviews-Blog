@@ -95,17 +95,17 @@ const InsiderList: React.FC = () => {
           >
             Back to Home
           </Link>
-          <a
-            href="https://tech-tool-reviews-blog.vercel.app"
+          <Link
+            to="/category/guides"
             className="px-8 py-4 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl font-bold hover:bg-gray-300 dark:hover:bg-gray-700 transition-all inline-block"
           >
             Browse Articles
-          </a>
+          </Link>
         </div>
 
         {/* Footer Note */}
         <p className="text-sm text-gray-500 dark:text-gray-500 mt-12 font-medium">
-          Can't find the email? Check your spam folder or <a href="#" className="text-indigo-600 hover:underline">contact support</a>
+          Can't find the email? Check your spam folder or <a href="mailto:techtoolreview@gmail.com" className="text-indigo-600 hover:underline">contact support</a>
         </p>
       </div>
     </div>

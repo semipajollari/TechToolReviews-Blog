@@ -1,0 +1,5 @@
+@echo off
+echo Adding DKIM record from Resend...
+vercel dns add techtoolreviews.co resend._domainkey TXT "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGA20dcEdlzHU277n33ZPlbA4XbxUnU1B+QDcyKANO7GEPsE/eL1B3qsFJyvyoMUgYVYb1UN/7fJ0yP4ca5sBATJ5IwmlZgjz65MoG9dLgdAAX+KH6Ay94d5hEvB/rENJRx+DbyA1iB9bb9IpXR6DhyM78LeVzNnbMBo7P9YaOowIDAQAB"
+echo Done!
+pause
