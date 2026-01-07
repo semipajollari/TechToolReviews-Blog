@@ -175,7 +175,8 @@ async function sendNewArticleEmail(article) {
     if (subscribers.length === 0) return { success: true, sent: 0 };
 
     const FRONTEND_URL = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
-    const FROM_EMAIL = process.env.FROM_EMAIL || 'TechToolReviews <onboarding@resend.dev>';
+    const FROM_EMAIL = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
+    const REPLY_TO = process.env.REPLY_TO_EMAIL || 'techtoolreview@gmail.com';
     const articleUrl = `${FRONTEND_URL}/article/${article.slug}`;
 
     const emailHtml = `
@@ -192,6 +193,7 @@ async function sendNewArticleEmail(article) {
       try {
         await resend.emails.send({
           from: FROM_EMAIL,
+          replyTo: REPLY_TO,
           to: subscriber.email,
           subject: `📰 New: ${article.title}`,
           html: emailHtml,
@@ -489,13 +491,15 @@ async function handleSendNewsletter(req, res) {
     
     const resend = getResend();
     const Subscriber = getSubscriberModel();
-    const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <onboarding@resend.dev>';
+    const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
+    const replyTo = process.env.REPLY_TO_EMAIL || 'techtoolreview@gmail.com';
     
     // If test mode, send only to admin
     if (test) {
       const adminEmail = req.admin.email || process.env.ADMIN_EMAIL || 'semipajo2003@gmail.com';
       await resend.emails.send({
         from: fromEmail,
+        replyTo: replyTo,
         to: adminEmail,
         subject: `[TEST] ${subject}`,
         html: content
@@ -522,6 +526,7 @@ async function handleSendNewsletter(req, res) {
         const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
         const emails = batch.map(sub => ({
           from: fromEmail,
+          replyTo: replyTo,
           to: sub.email,
           subject: subject,
           html: content,
@@ -604,12 +609,14 @@ async function handleResendVerification(req, res, id) {
 
     // Send verification email
     const resend = getResend();
-    const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <onboarding@resend.dev>';
+    const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
+    const replyTo = process.env.REPLY_TO_EMAIL || 'techtoolreview@gmail.com';
     const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
     const verifyUrl = `${baseUrl}/api/verify?token=${subscriber.verificationToken}`;
 
     await resend.emails.send({
       from: fromEmail,
+      replyTo: replyTo,
       to: subscriber.email,
       subject: 'Verify your TechToolReviews subscription',
       html: getVerificationEmailHtml(verifyUrl)
@@ -693,7 +700,8 @@ async function handleSendWeeklyRecap(req, res) {
       return res.status(200).json({ success: true, message: 'No active subscribers', sent: 0 });
     }
 
-    const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <onboarding@resend.dev>';
+    const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
+    const replyTo = process.env.REPLY_TO_EMAIL || 'techtoolreview@gmail.com';
     const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
 
     // Send in batches
@@ -705,6 +713,7 @@ async function handleSendWeeklyRecap(req, res) {
       
       const emails = batch.map(sub => ({
         from: fromEmail,
+        replyTo: replyTo,
         to: sub.email,
         subject: '⚡ This Week in Tech - TechToolReviews',
         html: getWeeklyRecapHtml(articles, sub.unsubscribeToken, baseUrl),

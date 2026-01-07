@@ -85,9 +85,9 @@ async function sendEmail(to, subject, html) {
     return false;
   }
 
-  // Use Resend's sender, but replies go to your Gmail
-  const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <onboarding@resend.dev>';
-  const replyTo = process.env.REPLY_TO || 'techtoolreview.co@gmail.com';
+  // Production-ready email configuration
+  const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
+  const replyTo = process.env.REPLY_TO_EMAIL || 'techtoolreview@gmail.com';
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -246,7 +246,7 @@ export default async function handler(req, res) {
     console.log('[Subscribe] ✅ Subscriber created:', emailLower);
 
     // Send verification email
-    const baseUrl = process.env.FRONTEND_URL || 'https://tech-tool-reviews-blog.vercel.app';
+    const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
     const verifyUrl = `${baseUrl}/api/verify?token=${verificationToken}`;
     const emailSent = await sendEmail(emailLower, 'Verify your TechToolReviews subscription', getVerificationEmailHtml(verifyUrl));
     console.log('[Subscribe] Email sent:', emailSent);

@@ -51,9 +51,9 @@ async function sendEmail(to, subject, html) {
     return false;
   }
 
-  // Use Resend's sender, but replies go to your Gmail
-  const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <onboarding@resend.dev>';
-  const replyTo = process.env.REPLY_TO || 'techtoolreview.co@gmail.com';
+  // Production-ready email configuration
+  const fromEmail = process.env.FROM_EMAIL || 'TechToolReviews <noreply@techtoolreviews.co>';
+  const replyTo = process.env.REPLY_TO_EMAIL || 'techtoolreview@gmail.com';
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
