@@ -225,7 +225,11 @@ export default async function handler(req, res) {
             from: fromEmail,
             to: newSubscriber.email,
             replyTo: replyTo,
-            subject: 'Welcome to TechToolReviews Insider List! 🚀',
+            subject: 'Welcome to TechToolReviews',
+            headers: {
+              'X-Entity-Ref-ID': `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              'List-Unsubscribe': `<${frontendUrl}/unsubscribe?token=${newSubscriber.unsubscribeToken || ''}>`,
+            },
             html: `
               <!DOCTYPE html>
               <html>

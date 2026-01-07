@@ -102,6 +102,11 @@ async function sendEmail(to, subject, html) {
         to: [to],
         subject,
         html,
+        text: html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(), // Plain text version
+        headers: {
+          'X-Entity-Ref-ID': `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
       }),
     });
 
@@ -126,43 +131,60 @@ async function sendEmail(to, subject, html) {
 function getVerificationEmailHtml(verifyUrl) {
   return `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify your TechToolReviews subscription</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
-  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-    <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-      <div style="text-align: center; margin-bottom: 30px;">
-        <div style="display: inline-block; background: #6366f1; padding: 12px 16px; border-radius: 12px;">
-          <span style="color: white; font-size: 24px;">⚡</span>
-        </div>
-        <h1 style="color: #18181b; margin: 20px 0 0; font-size: 24px;">TechToolReviews</h1>
-      </div>
-      
-      <h2 style="color: #18181b; margin: 0 0 16px; font-size: 20px;">Verify your email</h2>
-      <p style="color: #52525b; line-height: 1.6; margin: 0 0 24px;">
-        Thanks for subscribing! Click the button below to confirm your email and start receiving our weekly tech reviews and guides.
-      </p>
-      
-      <div style="text-align: center; margin: 32px 0;">
-        <a href="${verifyUrl}" style="display: inline-block; background: #6366f1; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
-          Verify Email
-        </a>
-      </div>
-      
-      <p style="color: #71717a; font-size: 14px; line-height: 1.6;">
-        This link expires in 24 hours. If you didn't subscribe, you can safely ignore this email.
-      </p>
-      
-      <hr style="border: none; border-top: 1px solid #e4e4e7; margin: 32px 0;">
-      
-      <p style="color: #a1a1aa; font-size: 12px; text-align: center; margin: 0;">
-        © 2026 TechToolReviews. All rights reserved.
-      </p>
-    </div>
-  </div>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f9fafb;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f9fafb; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #6366f1; padding: 32px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">TechToolReviews</h1>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px 32px;">
+              <h2 style="color: #111827; margin: 0 0 16px; font-size: 20px; font-weight: 600;">Confirm your subscription</h2>
+              <p style="color: #4b5563; line-height: 1.6; margin: 0 0 24px; font-size: 16px;">
+                Thank you for subscribing to TechToolReviews! Please confirm your email address by clicking the button below.
+              </p>
+              <!-- CTA Button -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" style="padding: 16px 0;">
+                    <a href="${verifyUrl}" style="display: inline-block; background-color: #6366f1; color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">Confirm Email Address</a>
+                  </td>
+                </tr>
+              </table>
+              <p style="color: #6b7280; font-size: 14px; line-height: 1.5; margin: 24px 0 0;">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                <a href="${verifyUrl}" style="color: #6366f1; word-break: break-all;">${verifyUrl}</a>
+              </p>
+              <p style="color: #9ca3af; font-size: 13px; margin: 24px 0 0;">
+                This link will expire in 24 hours. If you didn't request this, you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f9fafb; padding: 24px 32px; border-top: 1px solid #e5e7eb;">
+              <p style="color: #9ca3af; font-size: 12px; margin: 0; text-align: center;">
+                © 2026 TechToolReviews. All rights reserved.<br>
+                Weekly tech reviews and guides for developers.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 }
