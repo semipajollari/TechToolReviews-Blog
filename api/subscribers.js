@@ -169,10 +169,11 @@ export default async function handler(req, res) {
             message: 'This email is already subscribed',
           });
         } else {
-          // Resend verification
+          // Resend verification with new token and extended expiry
           existing.verificationToken = crypto.randomBytes(32).toString('hex');
+          existing.tokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
           await existing.save();
-          console.log('[Subscribers] ✅ Verification resent');
+          console.log('[Subscribers] ✅ Verification token regenerated');
           return res.status(200).json({
             success: true,
             message: 'Verification email resent. Please check your inbox.',
@@ -200,6 +201,7 @@ export default async function handler(req, res) {
       const newSubscriber = new Subscriber({
         email: emailLower,
         verificationToken: crypto.randomBytes(32).toString('hex'),
+        tokenExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
         unsubscribeToken: crypto.randomBytes(32).toString('hex'),
         preferences: preferences || {
           frequency: 'weekly',

@@ -196,13 +196,13 @@ export default async function handler(req, res) {
 
     if (!subscriber) {
       res.setHeader('Content-Type', 'text/html');
-      return res.status(404).send(getErrorHtml('Link Expired', 'This verification link has expired or is invalid. Please subscribe again.'));
+      return res.status(404).send(getErrorHtml('Link Not Found', 'This verification link is invalid. Please subscribe again to get a new verification email.'));
     }
 
-    // Check if token expired
+    // Check if token expired - if so, show helpful message
     if (subscriber.tokenExpiresAt && new Date() > subscriber.tokenExpiresAt) {
       res.setHeader('Content-Type', 'text/html');
-      return res.status(400).send(getErrorHtml('Link Expired', 'This verification link has expired. Please subscribe again to get a new link.'));
+      return res.status(400).send(getErrorHtml('Link Expired', 'This verification link has expired. Please visit the homepage and subscribe again to receive a new verification email.'));
     }
 
     // Already verified
