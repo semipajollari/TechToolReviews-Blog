@@ -208,7 +208,26 @@ export default async function handler(req, res) {
     // Already verified
     if (subscriber.status === 'active') {
       const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
-      return res.redirect(302, `${baseUrl}/insider-list?verified=true&email=${encodeURIComponent(subscriber.email)}`);
+      const redirectUrl = `${baseUrl}/insider-list?verified=true&email=${encodeURIComponent(subscriber.email)}`;
+      
+      res.setHeader('Content-Type', 'text/html');
+      return res.status(200).send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0;url=${redirectUrl}">
+  <script>window.location.href="${redirectUrl}";</script>
+  <title>Redirecting...</title>
+</head>
+<body style="margin:0;padding:0;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#6366f1;">
+  <div style="text-align:center;color:white;">
+    <div style="font-size:48px;margin-bottom:16px;">✓</div>
+    <h1 style="margin:0;font-size:24px;">Already Verified!</h1>
+    <p style="margin:16px 0 0;opacity:0.9;">Redirecting...</p>
+  </div>
+</body>
+</html>`);
     }
 
     // Verify the subscriber
@@ -220,9 +239,28 @@ export default async function handler(req, res) {
 
     console.log('[Verify] ✅ Email verified:', subscriber.email);
 
-    // Redirect to main domain success page
+    // Instant redirect to main domain success page
     const baseUrl = process.env.FRONTEND_URL || 'https://techtoolreviews.co';
-    return res.redirect(302, `${baseUrl}/insider-list?verified=true&email=${encodeURIComponent(subscriber.email)}`);
+    const redirectUrl = `${baseUrl}/insider-list?verified=true&email=${encodeURIComponent(subscriber.email)}`;
+    
+    res.setHeader('Content-Type', 'text/html');
+    return res.status(200).send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0;url=${redirectUrl}">
+  <script>window.location.href="${redirectUrl}";</script>
+  <title>Redirecting...</title>
+</head>
+<body style="margin:0;padding:0;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#6366f1;">
+  <div style="text-align:center;color:white;">
+    <div style="font-size:48px;margin-bottom:16px;">✓</div>
+    <h1 style="margin:0;font-size:24px;">Email Verified!</h1>
+    <p style="margin:16px 0 0;opacity:0.9;">Redirecting...</p>
+  </div>
+</body>
+</html>`);
 
   } catch (error) {
     console.error('[Verify] ❌ Error:', error.message);
