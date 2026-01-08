@@ -4,7 +4,6 @@ import { useLanguage, Language } from '../i18n';
 const LanguageSwitcher: React.FC = () => {
   const { language, setLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const languages: Language[] = ['en', 'de', 'es', 'fr'];
@@ -34,14 +33,7 @@ const LanguageSwitcher: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640); // Tailwind's sm breakpoint
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -51,40 +43,12 @@ const LanguageSwitcher: React.FC = () => {
         aria-label="Select language"
       >
         <span className="text-lg">{countryFlags[language]}</span>
-        {/* Desktop: show only flag, Mobile: show flag + name */}
-        {!isMobile && <span className="hidden sm:inline"></span>}
-        {isMobile && <span className="inline">{countryNames[language]}</span>}
+        <span className="inline">{countryNames[language]}</span>
         <i className={`fas fa-chevron-down text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`}></i>
       </button>
 
-      {/* Desktop dropdown */}
-      {!isMobile && isOpen && (
-        <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-fade-in">
-          {languages.map((lang) => (
-            <button
-              key={lang}
-              onClick={() => {
-                setLanguage(lang);
-                setIsOpen(false);
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                language === lang
-                  ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                  : 'text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              <span className="text-xl">{countryFlags[lang]}</span>
-              {/* Only flag on desktop */}
-              {language === lang && (
-                <i className="fas fa-check ml-auto text-indigo-600 dark:text-indigo-400"></i>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Mobile modal */}
-      {isMobile && isOpen && (
+      {/* Always use modal for language selection */}
+      {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 w-80 max-w-full p-4 animate-fade-in">
             <div className="flex justify-between items-center mb-4">
