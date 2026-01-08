@@ -28,6 +28,7 @@ export interface Translations {
   };
   // Article page
   article: {
+    loading: string;
     backHome: string;
     minRead: string;
     technicalEditor: string;
@@ -166,6 +167,7 @@ export const translations: Record<Language, Translations> = {
       categories: 'Categories',
     },
     article: {
+      loading: 'Loading article...',
       backHome: 'Back Home',
       minRead: 'min read',
       technicalEditor: 'Technical Editor',
@@ -296,6 +298,7 @@ export const translations: Record<Language, Translations> = {
       categories: 'Kategorien',
     },
     article: {
+      loading: 'Artikel wird geladen...',
       backHome: 'Zurück zur Startseite',
       minRead: 'Min. Lesezeit',
       technicalEditor: 'Technischer Redakteur',
@@ -426,6 +429,7 @@ export const translations: Record<Language, Translations> = {
       categories: 'Categorías',
     },
     article: {
+      loading: 'Cargando artículo...',
       backHome: 'Volver al inicio',
       minRead: 'min de lectura',
       technicalEditor: 'Editor Técnico',
@@ -556,6 +560,7 @@ export const translations: Record<Language, Translations> = {
       categories: 'Catégories',
     },
     article: {
+      loading: 'Chargement de l\'article...',
       backHome: "Retour à l'accueil",
       minRead: 'min de lecture',
       technicalEditor: 'Éditeur Technique',

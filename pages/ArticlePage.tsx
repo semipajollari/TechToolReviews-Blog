@@ -15,8 +15,8 @@ const ArticlePage: React.FC = () => {
   if (!article) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gray-50 dark:bg-gray-950">
-        <h1 className="text-4xl font-black text-gray-900 dark:text-gray-50 mb-4 tracking-tight">{t.article.postNotFound}</h1>
-        <Link to="/" className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-black shadow-lg shadow-indigo-500/20">{t.article.backHome}</Link>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-indigo-600 border-opacity-50 mb-8"></div>
+        <span className="text-lg font-bold text-gray-500 dark:text-gray-400">{t.article.loading || 'Loading article...'}</span>
       </div>
     );
   }
