@@ -6,20 +6,18 @@ const LanguageSwitcher: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const languages: Language[] = ['en-US', 'en-GB', 'de', 'es', 'fr']; // US and UK English
+  const languages: Language[] = ['en', 'de', 'es', 'fr']; // 'en' (US) is first and default
 
   // Country codes for flag display
   const countryFlags: { [key in Language]: string } = {
-    'en-US': '🇺🇸',
-    'en-GB': '🇬🇧',
+    en: '🇺🇸', // US flag for English
     de: '🇩🇪',
     es: '🇪🇸',
     fr: '🇫🇷',
   };
 
   const countryNames: { [key in Language]: string } = {
-    'en-US': 'English (US)',
-    'en-GB': 'English (UK)',
+    en: 'English',
     de: 'Deutsch',
     es: 'Español',
     fr: 'Français',
@@ -46,6 +44,7 @@ const LanguageSwitcher: React.FC = () => {
       >
         <span className="text-lg">{countryFlags[language]}</span>
         <span className="inline">{countryNames[language]}</span>
+        <span className="ml-1">Language</span>
         <i className={`fas fa-chevron-down text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`}></i>
       </button>
 
