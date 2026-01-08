@@ -37,7 +37,7 @@ export const getTechStackRecommendation = async (userInput: string): Promise<Rec
       return null;
     }
     clearTimeout(timeoutId);
-    if (!response || !response.ok) {
+    if (!response) {
       return null;
     }
     let data: any;
@@ -46,10 +46,10 @@ export const getTechStackRecommendation = async (userInput: string): Promise<Rec
     } catch {
       return null;
     }
-    if (!data || typeof data !== 'object') {
+    if (!data || typeof data !== 'object' || !data.success) {
       return null;
     }
-    if (data.success && data.recommendation) {
+    if (data.recommendation) {
       if (
         typeof data.recommendation.stackName === 'string' &&
         typeof data.recommendation.frontend === 'string' &&
