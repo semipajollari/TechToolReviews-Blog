@@ -42,8 +42,7 @@ const LanguageSwitcher: React.FC = () => {
         className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-sm font-medium text-gray-700 dark:text-gray-300"
         aria-label="Select language"
       >
-        <span className="text-lg">{countryFlags[language]}</span>
-        <span className="inline">{countryNames[language]}</span>
+       
         <span className="ml-1">Language</span>
         <i className={`fas fa-chevron-down text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`}></i>
       </button>
