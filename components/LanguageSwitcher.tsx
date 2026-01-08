@@ -6,18 +6,20 @@ const LanguageSwitcher: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const languages: Language[] = ['en', 'de', 'es', 'fr'];
+  const languages: Language[] = ['en-US', 'en-GB', 'de', 'es', 'fr']; // US and UK English
 
   // Country codes for flag display
   const countryFlags: { [key in Language]: string } = {
-    en: '🇬🇧',
+    'en-US': '🇺🇸',
+    'en-GB': '🇬🇧',
     de: '🇩🇪',
     es: '🇪🇸',
     fr: '🇫🇷',
   };
 
   const countryNames: { [key in Language]: string } = {
-    en: 'English',
+    'en-US': 'English (US)',
+    'en-GB': 'English (UK)',
     de: 'Deutsch',
     es: 'Español',
     fr: 'Français',

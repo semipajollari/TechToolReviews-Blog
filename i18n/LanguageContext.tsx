@@ -16,11 +16,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (saved && ['en', 'de', 'es', 'fr'].includes(saved)) {
       return saved;
     }
-    // Try to detect browser language
-    const browserLang = navigator.language.split('-')[0];
-    if (['en', 'de', 'es', 'fr'].includes(browserLang)) {
-      return browserLang as Language;
-    }
+    // Always default to US English
     return 'en';
   });
 
