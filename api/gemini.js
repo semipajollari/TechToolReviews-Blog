@@ -28,7 +28,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: 'Query must be at least 10 characters' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyA3q6sWr7ghbmihjrB1auWlEbsgcqoqtyo';
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(200).json({ success: false, message: 'Gemini API key not set on server' });
+    }
     
     // We want a JSON response
     const prompt = `You are a tech stack advisor. Based on this idea: "${sanitizedQuery}"
