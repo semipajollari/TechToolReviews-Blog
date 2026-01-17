@@ -12,7 +12,7 @@ $dest = urldecode($_GET['rxy']);
 
 // 3. Whitelist allowed Voluum domains (including your custom domain)
 $allowed_domains = [
-    'voluumtrk.com',
+    <?php
     'voluum.com',
     'voluumrtb.com',
     'voluum.click',
